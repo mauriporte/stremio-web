@@ -1,2 +1,2 @@
-
-require('./ModalDialog');
+require('./SampleModalDialog');
+require('./ModalDialogWithActionButtons');
