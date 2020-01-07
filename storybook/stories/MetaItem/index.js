@@ -1,1 +1,1 @@
-require('./SimpleMetaItem');
+require('./SаmpleMetaItem');
