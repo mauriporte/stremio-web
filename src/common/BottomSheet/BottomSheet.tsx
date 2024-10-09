@@ -40,10 +40,10 @@ const BottomSheet = ({ children, title, show }: Props) => {
         setOffset(Math.max(0, clientY - startOffset));
     }, [startOffset]);
 
-    const onTouchEnd = useCallback(() => {
+    const onTouchEnd = () => {
         setOffset((offset) => offset > CLOSE_THRESHOLD ? containerHeight() : 0);
         setStartOffset(0);
-    }, []);
+    };
 
     const onTransitionEnd = useCallback(() => {
         (offset === containerHeight()) && close();
