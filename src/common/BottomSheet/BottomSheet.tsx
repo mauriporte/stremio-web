@@ -15,7 +15,7 @@ type Props = {
     onClose: () => void,
 };
 
-const BottomSheet = ({ children, title, show }: Props) => {
+const BottomSheet = ({ children, title, show, onClose }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [startOffset, setStartOffset] = useState(0);
     const [offset, setOffset] = useState(0);
@@ -28,7 +28,7 @@ const BottomSheet = ({ children, title, show }: Props) => {
 
     const containerHeight = () => containerRef.current?.offsetHeight ?? 0;
 
-    const onClose = () => setOffset(containerHeight());
+    const onCloseRequest = () => setOffset(containerHeight());
 
     const onTouchStart = ({ touches }: React.TouchEvent<HTMLDivElement>) => {
         const { clientY } = touches[0];
@@ -54,9 +54,13 @@ const BottomSheet = ({ children, title, show }: Props) => {
         show ? open() : close();
     }, [show]);
 
+    useEffect(() => {
+        !opened && onClose();
+    }, [opened]);
+
     return opened && createPortal((
         <div className={styles['bottom-sheet']}>
-            <div className={styles['backdrop']} onClick={onClose} />
+            <div className={styles['backdrop']} onClick={onCloseRequest} />
             <div
                 ref={containerRef}
                 className={classNames(styles['container'], { [styles['dragging']]: startOffset }, 'animation-slide-up')}
@@ -72,7 +76,7 @@ const BottomSheet = ({ children, title, show }: Props) => {
                         {title}
                     </div>
                 </div>
-                <div className={styles['content']} onClick={onClose}>
+                <div className={styles['content']} onClick={onCloseRequest}>
                     {children}
                 </div>
             </div>

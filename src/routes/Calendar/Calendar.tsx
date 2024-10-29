@@ -26,6 +26,10 @@ const Calendar = ({ urlParams }: Props) => {
 
     const detailsTitle = useMemo(() => toDayMonth(selected), [selected, toDayMonth]);
 
+    const onDetailsClose = () => {
+        setSelected(null);
+    };
+
     return (
         <MainNavBars className={styles['calendar']} route={'calendar'}>
             {
@@ -54,7 +58,7 @@ const Calendar = ({ urlParams }: Props) => {
                             profile={profile}
                             onChange={setSelected}
                         />
-                        <BottomSheet title={detailsTitle} show={selected}>
+                        <BottomSheet title={detailsTitle} show={selected} onClose={onDetailsClose}>
                             <Details
                                 selected={selected}
                                 items={calendar.items}
