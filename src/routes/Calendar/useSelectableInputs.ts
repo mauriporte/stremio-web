@@ -27,7 +27,7 @@ const useSelectableInputs = (calendar: Calendar, profile: Profile) => {
 
     const selectableInputs = React.useMemo(() => {
         return mapSelectableInputs(calendar, toMonthYear);
-    }, [calendar]);
+    }, [calendar, toMonthYear]);
 
     return selectableInputs;
 };

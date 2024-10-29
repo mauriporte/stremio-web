@@ -24,7 +24,7 @@ const Calendar = ({ urlParams }: Props) => {
 
     const [selected, setSelected] = useState<CalendarDate | null>(null);
 
-    const detailsTitle = useMemo(() => toDayMonth(selected), [selected]);
+    const detailsTitle = useMemo(() => toDayMonth(selected), [selected, toDayMonth]);
 
     return (
         <MainNavBars className={styles['calendar']} route={'calendar'}>

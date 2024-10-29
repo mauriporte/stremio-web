@@ -1,5 +1,7 @@
+import { useCallback } from "react";
+
 const useCalendarDate = (profile: Profile) => {
-    const toMonthYear = (calendarDate: CalendarDate | null): string => {
+    const toMonthYear = useCallback((calendarDate: CalendarDate | null): string => {
         if (!calendarDate) return '';
 
         const date = new Date();
@@ -10,9 +12,9 @@ const useCalendarDate = (profile: Profile) => {
             month: 'long',
             year: 'numeric',
         });
-    };
+    }, [profile.settings]);
 
-    const toDayMonth = (calendarDate: CalendarDate | null): string => {
+    const toDayMonth = useCallback((calendarDate: CalendarDate | null): string => {
         if (!calendarDate) return '';
 
         const date = new Date();
@@ -23,7 +25,7 @@ const useCalendarDate = (profile: Profile) => {
             day: 'numeric',
             month: 'short',
         });
-    };
+    }, [profile.settings]);
 
     return {
         toMonthYear,
