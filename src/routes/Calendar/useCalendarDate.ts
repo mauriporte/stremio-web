@@ -5,6 +5,7 @@ const useCalendarDate = (profile: Profile) => {
         if (!calendarDate) return '';
 
         const date = new Date();
+        date.setDate(1);
         date.setMonth(calendarDate.month - 1);
         date.setFullYear(calendarDate.year);
 
