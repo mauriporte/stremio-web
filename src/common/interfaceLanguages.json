@@ -76,6 +76,10 @@
         "codes": ["it-IT", "ita"]
     },
     {
+        "name": "日本語 (にほんご)",
+        "codes": ["ja-JP", "jpn"]
+    },
+    {
         "name": "македонски јазик",
         "codes": ["mk-MK", "mkd"]
     },
