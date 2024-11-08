@@ -116,7 +116,7 @@ const Video = ({ className, id, title, thumbnail, episode, released, upcoming, w
                         }
                         <div className={styles['upcoming-watched-container']}>
                             {
-                                upcoming ?
+                                upcoming && !watched ?
                                     <div className={styles['upcoming-container']}>
                                         <div className={styles['flag-label']}>Upcoming</div>
                                     </div>
