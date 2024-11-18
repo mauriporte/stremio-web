@@ -161,8 +161,7 @@ const Player = ({ urlParams, queryParams }) => {
     }, []);
 
     const onSeekRequested = React.useCallback((time) => {
-        setSeeking(true);
-        console.log(`setSeeking to (SeekRequested): true`);
+        !seeking && setSeeking(true);
         video.setProp('time', time);
     }, []);
 
@@ -477,7 +476,6 @@ const Player = ({ urlParams, queryParams }) => {
                         if (video.state.paused) {
                             onPlayRequested();
                             setSeeking(false);
-                            console.log(`setSeeking to (play requested - Space): false`);
                         } else {
                             onPauseRequested();
                         }
@@ -565,8 +563,7 @@ const Player = ({ urlParams, queryParams }) => {
         };
         const onKeyUp = (event) => {
             if (event.code === 'ArrowRight' || event.code === 'ArrowLeft') {
-                setSeeking(false);
-                console.log(`setSeeking to (key up - ArrowRight/ArrowLeft): false`);
+                seeking && setSeeking(false);
             }
         };
         const onWheel = ({ deltaY }) => {
