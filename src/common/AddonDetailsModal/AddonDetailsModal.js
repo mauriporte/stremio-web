@@ -4,6 +4,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const ModalDialog = require('stremio/common/ModalDialog');
 const { withCoreSuspender } = require('stremio/common/CoreSuspender');
+const { usePlatform } = require('stremio/common/Platform');
 const { useServices } = require('stremio/services');
 const AddonDetailsWithRemoteAndLocalAddon = withRemoteAndLocalAddon(require('./AddonDetails'));
 const useAddonDetails = require('./useAddonDetails');
@@ -43,6 +44,7 @@ function withRemoteAndLocalAddon(AddonDetails) {
 
 const AddonDetailsModal = ({ transportUrl, onCloseRequest }) => {
     const { core } = useServices();
+    const platform = usePlatform();
     const addonDetails = useAddonDetails(transportUrl);
     const modalButtons = React.useMemo(() => {
         const cancelButton = {
@@ -68,7 +70,7 @@ const AddonDetailsModal = ({ transportUrl, onCloseRequest }) => {
                 label: 'Configure',
                 props: {
                     onClick: (event) => {
-                        window.open(transportUrl.replace('manifest.json', 'configure'));
+                        platform.openExternal(transportUrl.replace('manifest.json', 'configure'));
                         if (typeof onCloseRequest === 'function') {
                             onCloseRequest({
                                 type: 'configure',
@@ -105,7 +107,9 @@ const AddonDetailsModal = ({ transportUrl, onCloseRequest }) => {
                 }
             }
             :
-            addonDetails.remoteAddon !== null && addonDetails.remoteAddon.content.type === 'Ready' ?
+            addonDetails.remoteAddon !== null &&
+            addonDetails.remoteAddon.content.type === 'Ready' &&
+            !addonDetails.remoteAddon.content.content.manifest.behaviorHints.configurationRequired ?
                 {
 
                     className: styles['install-button'],
@@ -131,7 +135,7 @@ const AddonDetailsModal = ({ transportUrl, onCloseRequest }) => {
                 }
                 :
                 null;
-        return toggleButton !== null ? configureButton ? [cancelButton, configureButton, toggleButton] : [cancelButton, toggleButton] : [cancelButton];
+        return configureButton && toggleButton ? [cancelButton, configureButton, toggleButton] : configureButton ? [cancelButton, configureButton] : toggleButton ? [cancelButton, toggleButton] : [cancelButton];
     }, [addonDetails, onCloseRequest]);
     const modalBackground = React.useMemo(() => {
         return addonDetails.remoteAddon?.content.type === 'Ready' ? addonDetails.remoteAddon.content.content.manifest.background : null;
