@@ -81,7 +81,7 @@ const usePlayer = (urlParams) => {
                 }
             };
         } else {
-            console.warn("Player Unload triggered");
+            console.warn('Player Unload triggered');
             return {
                 action: 'Unload'
             };
