@@ -40,14 +40,16 @@
                     background-color: var(--overlay-color);
                 }
 
-                .language-label, .variant-origin {
+                .language-label, .variant-label {
                     flex: 1;
                     max-height: 2.4em;
                     font-size: 1.1rem;
+                    text-wrap: nowrap;
+                    text-overflow: ellipsis;
                     color: var(--primary-foreground-color);
                 }
 
-                .variant-origin .variant-label {
+                .variant-label .variant-origin {
                     color: var(--color-placeholder-text);
                 }
 
