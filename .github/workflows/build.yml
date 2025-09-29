@@ -5,7 +5,7 @@ on:
     branches:
       - development
     tags-ignore:
-      - "**"
+      - '**'
   pull_request:
     branches:
       - development
