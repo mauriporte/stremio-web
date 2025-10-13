@@ -26,7 +26,7 @@ const shortcuts: ShortcutGroup[] = [
             {
                 name: 'shortcuts',
                 label: 'SETTINGS_SHORTCUT_SHORTCUTS',
-                combos: [['Ctrl', '?']],
+                combos: [['Ctrl', '/']],
             },
         ]
     },
