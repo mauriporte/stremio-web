@@ -345,6 +345,7 @@ const Player = ({ urlParams, queryParams }) => {
                 forceTranscoding: forceTranscoding || casting,
                 maxAudioChannels: settings.surroundSound ? 32 : 2,
                 hardwareDecoding: settings.hardwareDecoding,
+                videoMode: settings.videoMode,
                 streamingServerURL: streamingServer.baseUrl ?
                     casting ?
                         streamingServer.baseUrl
