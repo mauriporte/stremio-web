@@ -167,12 +167,19 @@
     }
 }
 
-@media only screen and (max-height: @xxsmall) and (max-width: @xxsmall) and (orientation: landscape) {
-  .cell{
-    .items{
-        width: 100%;
+@media @phone-landscape {
+    .cell {
+        flex-direction: row;
+
+        .items {
+            padding: 1px;
+            gap: 0.15rem;
+
+            .item {
+                pointer-events: none;
+            }
+        }
     }
-  }
 }
 
 
