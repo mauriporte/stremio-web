@@ -19,11 +19,11 @@ WORKDIR /var/www/stremio-web
 # Setup app
 FROM base AS app
 
-COPY pnpm-lock.yaml /var/www/stremio-web
-RUN pnpm fetch --prod
+COPY package.json pnpm-lock.yaml /var/www/stremio-web
+RUN pnpm i --frozen-lockfile
 
 COPY . /var/www/stremio-web
-RUN pnpm run build
+RUN pnpm build
 
 # Setup server
 FROM base AS server
