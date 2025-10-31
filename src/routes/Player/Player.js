@@ -115,6 +115,8 @@ const Player = ({ urlParams, queryParams }) => {
                     isNavigating.current = true;
                     window.location.replace(deepLinks.metaDetailsStreams);
                 }
+            } else {
+                window.history.back();
             }
         } else {
             if (deepLinks.player) {
