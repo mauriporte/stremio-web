@@ -41,8 +41,9 @@ const Settings = () => {
         if (container!.scrollTop + container!.clientHeight >= container!.scrollHeight - 50) {
             setSelectedSectionId(sections[sections.length - 1].id);
         } else {
+            const tolerance = 10;
             for (let i = sections.length - 1; i >= 0; i--) {
-                if (sections[i].ref.current && sections[i].ref.current!.offsetTop - container!.offsetTop <= container!.scrollTop) {
+                if (sections[i].ref.current && sections[i].ref.current!.offsetTop - container!.offsetTop - tolerance <= container!.scrollTop) {
                     setSelectedSectionId(sections[i].id);
                     break;
                 }
