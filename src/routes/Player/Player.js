@@ -568,7 +568,7 @@ const Player = ({ urlParams, queryParams }) => {
         const videoId = player.selected ? player.selected?.streamRequest?.path?.id : null;
         const video = metaItem ? metaItem.videos.find(({ id }) => id === videoId) : null;
 
-        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})`: null;
+        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})` : null;
         const videoTitle = video ? `${video.title}${videoInfo}` : null;
         const metaTitle = metaItem ? metaItem.name : null;
         const imageUrl = metaItem ? metaItem.logo : null;
@@ -693,6 +693,10 @@ const Player = ({ urlParams, queryParams }) => {
                     onIncreaseSubtitlesDelay();
                     break;
                 }
+                case 'KeyM': {
+                    (typeof video.state.muted === 'boolean' && video.state.muted) ? onUnmuteRequested() : onMuteRequested();
+                    break;
+                }
                 case 'Minus': {
                     onUpdateSubtitlesSize(-1);
                     break;
@@ -747,6 +751,7 @@ const Player = ({ urlParams, queryParams }) => {
         video.state.paused,
         video.state.time,
         video.state.volume,
+        video.state.muted,
         video.state.audioTracks,
         video.state.subtitlesTracks,
         video.state.extraSubtitlesTracks,
@@ -754,6 +759,9 @@ const Player = ({ urlParams, queryParams }) => {
         toggleSubtitlesMenu,
         toggleStatisticsMenu,
         toggleSideDrawer,
+        onUnmuteRequested,
+        onMuteRequested,
+        overlayHidden,
         onDecreaseSubtitlesDelay,
         onIncreaseSubtitlesDelay,
         onUpdateSubtitlesSize,
