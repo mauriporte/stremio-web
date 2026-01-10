@@ -568,7 +568,7 @@ const Player = ({ urlParams, queryParams }) => {
         const videoId = player.selected ? player.selected?.streamRequest?.path?.id : null;
         const video = metaItem ? metaItem.videos.find(({ id }) => id === videoId) : null;
 
-        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})`: null;
+        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})` : null;
         const videoTitle = video ? `${video.title}${videoInfo}` : null;
         const metaTitle = metaItem ? metaItem.name : null;
         const imageUrl = metaItem ? metaItem.logo : null;
@@ -623,6 +623,10 @@ const Player = ({ urlParams, queryParams }) => {
             onSeekRequested(video.state.time - seekDuration);
         }
     }, [menusOpen, nextVideoPopupOpen, video.state.time, onSeekRequested]);
+
+    onShortcut('mute', () => {
+        video.state.muted === true ? onUnmuteRequested() : onMuteRequested();
+    }, [video.state.muted]);
 
     onShortcut('volumeUp', () => {
         if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
