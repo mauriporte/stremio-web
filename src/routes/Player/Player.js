@@ -8,7 +8,7 @@ const langs = require('langs');
 const { useTranslation } = require('react-i18next');
 const { useRouteFocused } = require('stremio-router');
 const { useServices } = require('stremio/services');
-const { onFileDrop, useSettings, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, CONSTANTS, useShell, usePlatform } = require('stremio/common');
+const { onFileDrop, useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, CONSTANTS, useShell, usePlatform, onShortcut } = require('stremio/common');
 const { HorizontalNavBar, Transition, ContextMenu } = require('stremio/components');
 const BufferingLoader = require('./BufferingLoader');
 const VolumeChangeIndicator = require('./VolumeChangeIndicator');
@@ -36,7 +36,7 @@ const Player = ({ urlParams, queryParams }) => {
     const forceTranscoding = React.useMemo(() => {
         return queryParams.has('forceTranscoding');
     }, [queryParams]);
-
+    const profile = useProfile();
     const [player, videoParamsChanged, timeChanged, seek, pausedChanged, ended, nextVideo] = usePlayer(urlParams);
     const [settings, updateSettings] = useSettings();
     const streamingServer = useStreamingServer();
@@ -105,13 +105,27 @@ const Player = ({ urlParams, queryParams }) => {
         video.setProp('extraSubtitlesOutlineColor', settings.subtitlesOutlineColor);
     }, [settings.subtitlesSize, settings.subtitlesOffset, settings.subtitlesTextColor, settings.subtitlesBackgroundColor, settings.subtitlesOutlineColor]);
 
-    const handleNextVideoNavigation = React.useCallback((deepLinks) => {
-        if (deepLinks.player) {
-            isNavigating.current = true;
-            window.location.replace(deepLinks.player);
-        } else if (deepLinks.metaDetailsStreams) {
-            isNavigating.current = true;
-            window.location.replace(deepLinks.metaDetailsStreams);
+    const handleNextVideoNavigation = React.useCallback((deepLinks, bingeWatching, ended) => {
+        if (ended) {
+            if (bingeWatching) {
+                if (deepLinks.player) {
+                    isNavigating.current = true;
+                    window.location.replace(deepLinks.player);
+                } else if (deepLinks.metaDetailsStreams) {
+                    isNavigating.current = true;
+                    window.location.replace(deepLinks.metaDetailsStreams);
+                }
+            } else {
+                window.history.back();
+            }
+        } else {
+            if (deepLinks.player) {
+                isNavigating.current = true;
+                window.location.replace(deepLinks.player);
+            } else if (deepLinks.metaDetailsStreams) {
+                isNavigating.current = true;
+                window.location.replace(deepLinks.metaDetailsStreams);
+            }
         }
     }, []);
 
@@ -127,7 +141,8 @@ const Player = ({ urlParams, queryParams }) => {
             nextVideo();
 
             const deepLinks = window.playerNextVideo.deepLinks;
-            handleNextVideoNavigation(deepLinks);
+            handleNextVideoNavigation(deepLinks, profile.settings.bingeWatching, true);
+
         } else {
             window.history.back();
         }
@@ -257,9 +272,9 @@ const Player = ({ urlParams, queryParams }) => {
             nextVideo();
 
             const deepLinks = player.nextVideo.deepLinks;
-            handleNextVideoNavigation(deepLinks);
+            handleNextVideoNavigation(deepLinks, profile.settings.bingeWatching, false);
         }
-    }, [player.nextVideo, handleNextVideoNavigation]);
+    }, [player.nextVideo, handleNextVideoNavigation, profile.settings]);
 
     const onVideoClick = React.useCallback(() => {
         if (video.state.paused !== null) {
@@ -323,10 +338,10 @@ const Player = ({ urlParams, queryParams }) => {
         setError(null);
         video.unload();
 
-        if (player.selected && streamingServer.settings?.type !== 'Loading') {
+        if (player.selected && player.stream?.type === 'Ready' && streamingServer.settings?.type !== 'Loading') {
             video.load({
                 stream: {
-                    ...player.selected.stream,
+                    ...player.stream.content,
                     subtitles: Array.isArray(player.selected.stream.subtitles) ?
                         player.selected.stream.subtitles.map((subtitles) => ({
                             ...subtitles,
@@ -362,7 +377,7 @@ const Player = ({ urlParams, queryParams }) => {
                 shellTransport: services.shell.active ? services.shell.transport : null,
             });
         }
-    }, [streamingServer.baseUrl, player.selected, forceTranscoding, casting]);
+    }, [streamingServer.baseUrl, player.selected, player.stream, forceTranscoding, casting]);
     React.useEffect(() => {
         if (video.state.stream !== null) {
             const tracks = player.subtitles.map((subtitles) => ({
@@ -413,7 +428,7 @@ const Player = ({ urlParams, queryParams }) => {
     }, [video.state.videoParams]);
 
     React.useEffect(() => {
-        if (!!settings.bingeWatching && player.nextVideo !== null && !nextVideoPopupDismissed.current) {
+        if (player.nextVideo !== null && !nextVideoPopupDismissed.current) {
             if (video.state.time !== null && video.state.duration !== null && video.state.time < video.state.duration && (video.state.duration - video.state.time) <= settings.nextVideoNotificationDuration) {
                 openNextVideoPopup();
             } else {
@@ -554,7 +569,7 @@ const Player = ({ urlParams, queryParams }) => {
         const videoId = player.selected ? player.selected?.streamRequest?.path?.id : null;
         const video = metaItem ? metaItem.videos.find(({ id }) => id === videoId) : null;
 
-        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})`: null;
+        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})` : null;
         const videoTitle = video ? `${video.title}${videoInfo}` : null;
         const metaTitle = metaItem ? metaItem.name : null;
         const imageUrl = metaItem ? metaItem.logo : null;
@@ -583,117 +598,99 @@ const Player = ({ urlParams, queryParams }) => {
         navigator.mediaSession.setActionHandler('nexttrack', nexVideoCallback);
     }, [player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
 
-    React.useLayoutEffect(() => {
-        const onKeyDown = (event) => {
-            switch (event.code) {
-                case 'Space': {
-                    if (!menusOpen && !nextVideoPopupOpen && video.state.paused !== null) {
-                        if (video.state.paused) {
-                            onPlayRequested();
-                            setSeeking(false);
-                        } else {
-                            onPauseRequested();
-                        }
-                    }
-
-                    break;
-                }
-                case 'ArrowRight': {
-                    if (!menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
-                        const seekDuration = event.shiftKey ? settings.seekShortTimeDuration : settings.seekTimeDuration;
-                        setSeeking(true);
-                        onSeekRequested(video.state.time + seekDuration);
-                    }
-
-                    break;
-                }
-                case 'ArrowLeft': {
-                    if (!menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
-                        const seekDuration = event.shiftKey ? settings.seekShortTimeDuration : settings.seekTimeDuration;
-                        setSeeking(true);
-                        onSeekRequested(video.state.time - seekDuration);
-                    }
-
-                    break;
-                }
-                case 'ArrowUp': {
-                    if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
-                        onVolumeChangeRequested(Math.min(video.state.volume + 5, 200));
-                    }
-
-                    break;
-                }
-                case 'ArrowDown': {
-                    if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
-                        onVolumeChangeRequested(Math.max(video.state.volume - 5, 0));
-                    }
-
-                    break;
-                }
-                case 'KeyS': {
-                    closeMenus();
-                    if ((Array.isArray(video.state.subtitlesTracks) && video.state.subtitlesTracks.length > 0) ||
-                        (Array.isArray(video.state.extraSubtitlesTracks) && video.state.extraSubtitlesTracks.length > 0)) {
-                        toggleSubtitlesMenu();
-                    }
-
-                    break;
-                }
-                case 'KeyA': {
-                    closeMenus();
-                    if (Array.isArray(video.state.audioTracks) && video.state.audioTracks.length > 0) {
-                        toggleAudioMenu();
-                    }
-
-                    break;
-                }
-                case 'KeyI': {
-                    closeMenus();
-                    if (player.metaItem !== null && player.metaItem.type === 'Ready') {
-                        toggleSideDrawer();
-                    }
-
-                    break;
-                }
-                case 'KeyR': {
-                    closeMenus();
-                    if (video.state.playbackSpeed !== null) {
-                        toggleSpeedMenu();
-                    }
-
-                    break;
-                }
-                case 'KeyD': {
-                    closeMenus();
-                    if (streamingServer.statistics !== null && streamingServer.statistics.type !== 'Err' && player.selected && typeof player.selected.stream.infoHash === 'string' && typeof player.selected.stream.fileIdx === 'number') {
-                        toggleStatisticsMenu();
-                    }
-
-                    break;
-                }
-                case 'KeyG': {
-                    onDecreaseSubtitlesDelay();
-                    break;
-                }
-                case 'KeyH': {
-                    onIncreaseSubtitlesDelay();
-                    break;
-                }
-                case 'Minus': {
-                    onUpdateSubtitlesSize(-1);
-                    break;
-                }
-                case 'Equal': {
-                    onUpdateSubtitlesSize(1);
-                    break;
-                }
-                case 'Escape': {
-                    closeMenus();
-                    !settings.escExitFullscreen && window.history.back();
-                    break;
-                }
+    onShortcut('playPause', () => {
+        if (!menusOpen && !nextVideoPopupOpen && video.state.paused !== null) {
+            if (video.state.paused) {
+                onPlayRequested();
+                setSeeking(false);
+            } else {
+                onPauseRequested();
             }
-        };
+        }
+    }, [menusOpen, nextVideoPopupOpen, video.state.paused, onPlayRequested, onPauseRequested]);
+
+    onShortcut('seekForward', (combo) => {
+        if (!menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
+            const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
+            setSeeking(true);
+            onSeekRequested(video.state.time + seekDuration);
+        }
+    }, [menusOpen, nextVideoPopupOpen, video.state.time, onSeekRequested]);
+
+    onShortcut('seekBackward', (combo) => {
+        if (!menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
+            const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
+            setSeeking(true);
+            onSeekRequested(video.state.time - seekDuration);
+        }
+    }, [menusOpen, nextVideoPopupOpen, video.state.time, onSeekRequested]);
+
+    onShortcut('mute', () => {
+        video.state.muted === true ? onUnmuteRequested() : onMuteRequested();
+    }, [video.state.muted]);
+
+    onShortcut('volumeUp', () => {
+        if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
+            onVolumeChangeRequested(Math.min(video.state.volume + 5, 200));
+        }
+    }, [menusOpen, nextVideoPopupOpen, video.state.volume]);
+
+    onShortcut('volumeDown', () => {
+        if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
+            onVolumeChangeRequested(Math.min(video.state.volume - 5, 200));
+        }
+    }, [menusOpen, nextVideoPopupOpen, video.state.volume]);
+
+    onShortcut('subtitlesDelay', (combo) => {
+        combo === 1 ? onIncreaseSubtitlesDelay() : onDecreaseSubtitlesDelay();
+    }, [onIncreaseSubtitlesDelay, onDecreaseSubtitlesDelay]);
+
+    onShortcut('subtitlesSize', (combo) => {
+        combo === 1 ? onUpdateSubtitlesSize(-1) : onUpdateSubtitlesSize(1);
+    }, [onUpdateSubtitlesSize, onUpdateSubtitlesSize]);
+
+    onShortcut('subtitlesMenu', () => {
+        closeMenus();
+        if (video.state?.subtitlesTracks?.length > 0 || video.state?.extraSubtitlesTracks?.length > 0) {
+            toggleSubtitlesMenu();
+        }
+    }, [video.state.subtitlesTracks, video.state.extraSubtitlesTracks, toggleSubtitlesMenu]);
+
+    onShortcut('audioMenu', () => {
+        closeMenus();
+        if (video.state?.audioTracks?.length > 0) {
+            toggleAudioMenu();
+        }
+    }, [video.state.audioTracks, toggleAudioMenu]);
+
+    onShortcut('infoMenu', () => {
+        closeMenus();
+        if (player.metaItem?.type === 'Ready') {
+            toggleSideDrawer();
+        }
+    }, [player.metaItem, toggleSideDrawer]);
+
+    onShortcut('speedMenu', () => {
+        closeMenus();
+        if (video.state.playbackSpeed !== null) {
+            toggleSpeedMenu();
+        }
+    }, [video.state.playbackSpeed, toggleSpeedMenu]);
+
+    onShortcut('statisticsMenu', () => {
+        closeMenus();
+        const stream = player.selected?.stream;
+        if (streamingServer?.statistics?.type !== 'Err' && typeof stream === 'string' && typeof stream === 'number') {
+            toggleStatisticsMenu();
+        }
+    }, [player.selected, streamingServer.statistics, toggleStatisticsMenu]);
+
+    onShortcut('exit', () => {
+        closeMenus();
+        !settings.escExitFullscreen && window.history.back();
+    }, [settings.escExitFullscreen]);
+
+    React.useLayoutEffect(() => {
         const onKeyUp = (event) => {
             if (event.code === 'ArrowRight' || event.code === 'ArrowLeft') {
                 setSeeking(false);
@@ -711,39 +708,14 @@ const Player = ({ urlParams, queryParams }) => {
             }
         };
         if (routeFocused) {
-            window.addEventListener('keydown', onKeyDown);
             window.addEventListener('keyup', onKeyUp);
             window.addEventListener('wheel', onWheel);
         }
         return () => {
-            window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
             window.removeEventListener('wheel', onWheel);
         };
-    }, [
-        player.metaItem,
-        player.selected,
-        streamingServer.statistics,
-        settings.seekTimeDuration,
-        settings.seekShortTimeDuration,
-        settings.escExitFullscreen,
-        routeFocused,
-        menusOpen,
-        nextVideoPopupOpen,
-        video.state.paused,
-        video.state.time,
-        video.state.volume,
-        video.state.audioTracks,
-        video.state.subtitlesTracks,
-        video.state.extraSubtitlesTracks,
-        video.state.playbackSpeed,
-        toggleSubtitlesMenu,
-        toggleStatisticsMenu,
-        toggleSideDrawer,
-        onDecreaseSubtitlesDelay,
-        onIncreaseSubtitlesDelay,
-        onUpdateSubtitlesSize,
-    ]);
+    }, [routeFocused, menusOpen, video.state.volume]);
 
     React.useEffect(() => {
         video.events.on('error', onError);
