@@ -10,7 +10,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const WebpackPwaManifest = require('webpack-pwa-manifest');
 const packageJson = require('./package.json');
 
 const COMMIT_HASH = execSync('git rev-parse HEAD').toString().trim();
@@ -233,6 +232,7 @@ module.exports = (env, argv) => ({
                 { from: 'images', to: 'images' },
                 { from: 'screenshots/*.webp', to: './' },
                 { from: '.well-known', to: '.well-known' },
+                { from: 'manifest.json', to: 'manifest.json' },
             ]
         }),
         new MiniCssExtractPlugin({
@@ -244,57 +244,6 @@ module.exports = (env, argv) => ({
             scriptLoading: 'blocking',
             faviconsPath: 'favicons',
             imagesPath: 'images',
-        }),
-        new WebpackPwaManifest({
-            name: 'Stremio Web',
-            short_name: 'Stremio',
-            description: 'Freedom To Stream',
-            background_color: '#161523',
-            theme_color: '#2a2843',
-            orientation: 'any',
-            display: 'standalone',
-            display_override: ['standalone'],
-            scope: './',
-            start_url: './',
-            publicPath: './',
-            icons: [
-                {
-                    src: 'images/icon.png',
-                    destination: 'icons',
-                    sizes: [196, 512],
-                    purpose: 'any'
-                },
-                {
-                    src: 'images/maskable_icon.png',
-                    destination: 'maskable_icons',
-                    sizes: [196, 512],
-                    purpose: 'maskable',
-                    ios: true
-                },
-                {
-                    src: 'favicons/favicon.ico',
-                    destination: 'favicons',
-                    sizes: [256],
-                }
-            ],
-            screenshots : [
-                {
-                    src: 'screenshots/board_wide.webp',
-                    sizes: '1440x900',
-                    type: 'image/webp',
-                    form_factor: 'wide',
-                    label: 'Homescreen of Stremio'
-                },
-                {
-                    src: 'screenshots/board_narrow.webp',
-                    sizes: '414x896',
-                    type: 'image/webp',
-                    form_factor: 'narrow',
-                    label: 'Homescreen of Stremio'
-                }
-            ],
-            fingerprints: false,
-            ios: true
         }),
     ].filter(Boolean)
 });
