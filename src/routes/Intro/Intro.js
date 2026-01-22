@@ -296,7 +296,7 @@ const Intro = ({ queryParams }) => {
             <div className={styles['background-container']} />
             <div className={styles['heading-container']}>
                 <div className={styles['logo-container']}>
-                    <Image className={styles['logo']} src={require('/images/logo.png')} alt={' '} />
+                    <Image className={styles['logo']} src={require('/assets/images/logo.png')} alt={' '} />
                 </div>
                 <div className={styles['title-container']}>
                     {t('WEBSITE_SLOGAN_NEW_NEW')}
@@ -387,7 +387,7 @@ const Intro = ({ queryParams }) => {
                     {
                         state.form === SIGNUP_FORM ?
                             <Button className={classnames(styles['form-button'], styles['login-form-button'])} onClick={switchFormOnClick}>
-                                <div className={classnames(styles['label'], styles['uppercase'])}>{t('LOG_IN')}</div>
+                                <div className={styles['label']}>{t('LOG_IN')}</div>
                             </Button>
                             :
                             null
@@ -395,7 +395,7 @@ const Intro = ({ queryParams }) => {
                     {
                         state.form === LOGIN_FORM ?
                             <Button className={classnames(styles['form-button'], styles['signup-form-button'])} onClick={switchFormOnClick}>
-                                <div className={classnames(styles['label'], styles['uppercase'])}>{t('SIGN_UP_EMAIL')}</div>
+                                <div className={styles['label']}>{t('SIGN_UP_EMAIL')}</div>
                             </Button>
                             :
                             null
@@ -403,7 +403,7 @@ const Intro = ({ queryParams }) => {
                     {
                         state.form === SIGNUP_FORM ?
                             <Button className={classnames(styles['form-button'], styles['guest-login-button'])} onClick={loginAsGuest}>
-                                <div className={classnames(styles['label'], styles['uppercase'])}>{t('GUEST_LOGIN')}</div>
+                                <div className={styles['label']}>{t('GUEST_LOGIN')}</div>
                             </Button>
                             :
                             null

@@ -134,20 +134,20 @@ const MetaDetails = ({ urlParams, queryParams }) => {
                     metaPath === null ?
                         <DelayedRenderer delay={500}>
                             <div className={styles['meta-message-container']}>
-                                <Image className={styles['image']} src={require('/images/empty.png')} alt={' '} />
+                                <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
                                 <div className={styles['message-label']}>{t('ERR_NO_META_SELECTED')}</div>
                             </div>
                         </DelayedRenderer>
                         :
                         metaDetails.metaItem === null ?
                             <div className={styles['meta-message-container']}>
-                                <Image className={styles['image']} src={require('/images/empty.png')} alt={' '} />
+                                <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
                                 <div className={styles['message-label']}>{t('ERR_NO_ADDONS_FOR_META')}</div>
                             </div>
                             :
                             metaDetails.metaItem.content.type === 'Err' ?
                                 <div className={styles['meta-message-container']}>
-                                    <Image className={styles['image']} src={require('/images/empty.png')} alt={' '} />
+                                    <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
                                     <div className={styles['message-label']}>{t('ERR_NO_META_FOUND')}</div>
                                 </div>
                                 :
@@ -194,6 +194,7 @@ const MetaDetails = ({ urlParams, queryParams }) => {
                                 metaItem={metaDetails.metaItem}
                                 libraryItem={metaDetails.libraryItem}
                                 season={season}
+                                selectedVideoId={metaDetails.libraryItem?.state?.video_id}
                                 seasonOnSelect={seasonOnSelect}
                                 toggleNotifications={toggleNotifications}
                             />
