@@ -128,14 +128,14 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                 .then(() => {
                     toast.show({
                         type: 'success',
-                        title: t('PLAYER_COPY_DOWNLOAD_SUCCESS'),
+                        title: t('PLAYER_COPY_DOWNLOAD_LINK_SUCCESS'),
                         timeout: 4000
                     });
                 })
                 .catch(() => {
                     toast.show({
                         type: 'error',
-                        title: t('PLAYER_COPY_DOWNLOAD_ERROR'),
+                        title: t('PLAYER_COPY_DOWNLOAD_LINK_ERROR'),
                         timeout: 4000,
                     });
                 });
@@ -223,9 +223,9 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                 }
                 {
                     downloadLink &&
-                        <Button className={styles['context-menu-option-container']} title={t('CTX_DOWNLOAD_STREAM_LINK')} onClick={copyDownloadLink}>
+                        <Button className={styles['context-menu-option-container']} title={t('CTX_DOWNLOAD_VIDEO')} onClick={copyDownloadLink}>
                             <Icon className={styles['menu-icon']} name={'download'} />
-                            <div className={styles['context-menu-option-label']}>{t('CTX_COPY_DOWNLOAD_LINK')}</div>
+                            <div className={styles['context-menu-option-label']}>{t('CTX_COPY_VIDEO_DOWNLOAD_LINK')}</div>
                         </Button>
                 }
             </div>
