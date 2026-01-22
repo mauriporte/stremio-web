@@ -45,6 +45,10 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, onCh
         return disabled || typeof value !== 'number' || (typeof max === 'number' && value >= max);
     }, [disabled, max, value]);
 
+    const valueLabel = useMemo(() => {
+        return (disabled || typeof value !== 'number') ? '--' : `${value}${unit}`;
+    }, [disabled, value, unit]);
+
     const updateValue = useCallback((delta: number) => {
         onChange(clamp(localValue.current + delta, min, max));
     }, [onChange]);
@@ -88,7 +92,7 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, onCh
                     <Icon className={styles['icon']} name={'remove'} />
                 </Button>
                 <div className={styles['value']}>
-                    { disabled ? '--' : `${value}${unit}` }
+                    { valueLabel }
                 </div>
                 <Button
                     className={classNames(styles['button'], { 'disabled': increaseDisabled })}
