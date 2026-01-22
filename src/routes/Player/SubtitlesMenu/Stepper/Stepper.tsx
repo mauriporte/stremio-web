@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
@@ -37,6 +37,14 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, onCh
         timeout.cancel();
     };
 
+    const decreaseDisabled = useMemo(() => {
+        return disabled || typeof value !== 'number' || (typeof min === 'number' && value <= min);
+    }, [disabled, min, value]);
+
+    const increaseDisabled = useMemo(() => {
+        return disabled || typeof value !== 'number' || (typeof max === 'number' && value >= max);
+    }, [disabled, max, value]);
+
     const updateValue = useCallback((delta: number) => {
         onChange(clamp(localValue.current + delta, min, max));
     }, [onChange]);
@@ -72,7 +80,7 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, onCh
             </div>
             <div className={styles['content']}>
                 <Button
-                    className={classNames(styles['button'], { 'disabled': disabled })}
+                    className={classNames(styles['button'], { 'disabled': decreaseDisabled })}
                     onMouseDown={onDecrementMouseDown}
                     onMouseUp={onDecrementMouseUp}
                     onMouseLeave={cancel}
@@ -83,7 +91,7 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, onCh
                     { disabled ? '--' : `${value}${unit}` }
                 </div>
                 <Button
-                    className={classNames(styles['button'], { 'disabled': disabled })}
+                    className={classNames(styles['button'], { 'disabled': increaseDisabled })}
                     onMouseDown={onIncrementMouseDown}
                     onMouseUp={onIncrementMouseUp}
                     onMouseLeave={cancel}
