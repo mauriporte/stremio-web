@@ -52,7 +52,7 @@ const PasswordResetModal = ({ email, onCloseRequest }) => {
                 ref={emailRef}
                 className={styles['credentials-text-input']}
                 type={'email'}
-                placeholder={t('WEBSITE_PLACEHOLDER_EMAIL')}
+                placeholder={t('EMAIL')}
                 defaultValue={typeof email === 'string' ? email : ''}
                 onChange={emailOnChange}
                 onSubmit={goToPasswordReset}
