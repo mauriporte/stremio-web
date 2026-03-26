@@ -11,6 +11,7 @@ const { AddonDetailsModal, Button, DelayedRenderer, Image, MainNavBars, MetaItem
 const useDiscover = require('./useDiscover');
 const useSelectableInputs = require('./useSelectableInputs');
 const useInstalledAddons = require('../Addons/useInstalledAddons');
+const {default: EpgGuide} = require('./EpgGuide');
 const styles = require('./styles');
 
 const SCROLL_TO_BOTTOM_THRESHOLD = 400;
@@ -27,6 +28,7 @@ const Discover = ({ urlParams, queryParams }) => {
     const metasContainerRef = React.useRef();
     const metaPreviewRef = React.useRef();
 
+    const [selectedProgram, setSelectedProgram] = React.useState(null);
     const installedAddons = useInstalledAddons({ transportUrl: null, catalogId: null });
     const selectedAddon = React.useMemo(() => {
         const selected = discover.selectable.catalogs.find(({ selected }) => selected)?.addon ?? null;
@@ -34,6 +36,9 @@ const Discover = ({ urlParams, queryParams }) => {
         return addon;
     }, [discover.selectable.catalogs, installedAddons]);
     const isEpgLayout = React.useMemo(() => !!selectedAddon?.manifest?.behaviorHints?.epgEndpoint, [selectedAddon]);
+    const onProgramSelect = React.useCallback((program) => {
+        setSelectedProgram(program);
+    }, [setSelectedProgram]);
 
     React.useEffect(() => {
         if (!isEpgLayout && discover.catalog?.content.type === 'Loading' && metasContainerRef.current) {
@@ -105,7 +110,120 @@ const Discover = ({ urlParams, queryParams }) => {
         closeInputsModal();
         closeAddonModal();
         setSelectedMetaItemIndex(0);
+        setSelectedProgram(null);
     }, [discover.selected]);
+
+    const renderEmptyState = () => (
+        <DelayedRenderer delay={500}>
+            <div className={styles['message-container']}>
+                <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
+                <div className={styles['message-label']}>{t('NO_CATALOG_SELECTED')}</div>
+            </div>
+        </DelayedRenderer>
+    );
+
+    const renderErrorState = (msg) => (
+        <div className={styles['message-container']}>
+            <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
+            <div className={styles['message-label']}>{msg}</div>
+        </div>
+    );
+
+    const renderCatalogContent = () => {
+        if (discover.catalog === null) return renderEmptyState();
+        if (discover.catalog.content.type === 'Err') return renderErrorState(discover.catalog.content.content);
+
+        if (isEpgLayout) {
+            return (
+                <EpgGuide
+                    addon={selectedAddon}
+                    onProgramSelect={onProgramSelect}
+                />
+            );
+        }
+
+        if (discover.catalog.content.type === 'Loading') {
+            return (
+                <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')}>
+                    {Array(CONSTANTS.CATALOG_PAGE_SIZE).fill(null).map((_, index) => (
+                        <div key={index} className={styles['meta-item-placeholder']}>
+                            <div className={styles['poster-container']} />
+                            <div className={styles['title-bar-container']}>
+                                <div className={styles['title-label']} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        return (
+            <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
+                {discover.catalog.content.content.map((metaItem, index) => (
+                    <MetaItem
+                        key={index}
+                        className={classnames({ 'selected': selectedMetaItemIndex === index })}
+                        type={metaItem.type}
+                        name={metaItem.name}
+                        poster={metaItem.poster}
+                        posterShape={metaItem.posterShape}
+                        playname={selectedMetaItemIndex === index}
+                        deepLinks={metaItem.deepLinks}
+                        watched={metaItem.watched}
+                        data-index={index}
+                        onClick={metaItemOnClick}
+                    />
+                ))}
+            </div>
+        );
+    };
+
+    const renderMetaPreview = () => {
+        if (isEpgLayout) {
+            if (selectedProgram === null) return null;
+            return (
+                <MetaPreview
+                    className={styles['meta-preview-container']}
+                    compact={true}
+                    name={selectedProgram.title}
+                    background={selectedProgram.thumbnail}
+                    released={selectedProgram.start ? new Date(selectedProgram.start) : null}
+                    description={selectedProgram.description}
+                />
+            );
+        }
+
+        if (selectedMetaItem !== null) {
+            return (
+                <MetaPreview
+                    className={styles['meta-preview-container']}
+                    compact={true}
+                    ref={metaPreviewRef}
+                    name={selectedMetaItem.name}
+                    logo={selectedMetaItem.logo}
+                    background={selectedMetaItem.poster}
+                    runtime={selectedMetaItem.runtime}
+                    releaseInfo={selectedMetaItem.releaseInfo}
+                    released={selectedMetaItem.released}
+                    description={selectedMetaItem.description}
+                    links={selectedMetaItem.links}
+                    deepLinks={selectedMetaItem.deepLinks}
+                    trailerStreams={selectedMetaItem.trailerStreams}
+                    inLibrary={selectedMetaItem.inLibrary}
+                    toggleInLibrary={selectedMetaItem.inLibrary ? removeFromLibrary : addToLibrary}
+                    metaId={selectedMetaItem.id}
+                    like={selectedMetaItem.like}
+                />
+            );
+        }
+
+        if (discover.catalog !== null && discover.catalog.content.type === 'Loading') {
+            return <div className={styles['meta-preview-container']} />;
+        }
+
+        return null;
+    };
+
     return (
         <MainNavBars className={styles['discover-container']} route={'discover'}>
             <div className={styles['discover-content']}>
@@ -138,79 +256,9 @@ const Discover = ({ urlParams, queryParams }) => {
                             :
                             null
                     }
-                    {
-                        discover.catalog === null ?
-                            <DelayedRenderer delay={500}>
-                                <div className={styles['message-container']}>
-                                    <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
-                                    <div className={styles['message-label']}>{t('NO_CATALOG_SELECTED')}</div>
-                                </div>
-                            </DelayedRenderer>
-                            :
-                            discover.catalog.content.type === 'Err' ?
-                                <div className={styles['message-container']}>
-                                    <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
-                                    <div className={styles['message-label']}>{discover.catalog.content.content}</div>
-                                </div>
-                                :
-                                discover.catalog.content.type === 'Loading' ?
-                                    <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')}>
-                                        {Array(CONSTANTS.CATALOG_PAGE_SIZE).fill(null).map((_, index) => (
-                                            <div key={index} className={styles['meta-item-placeholder']}>
-                                                <div className={styles['poster-container']} />
-                                                <div className={styles['title-bar-container']}>
-                                                    <div className={styles['title-label']} />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    :
-                                    <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
-                                        {discover.catalog.content.content.map((metaItem, index) => (
-                                            <MetaItem
-                                                key={index}
-                                                className={classnames({ 'selected': selectedMetaItemIndex === index })}
-                                                type={metaItem.type}
-                                                name={metaItem.name}
-                                                poster={metaItem.poster}
-                                                posterShape={metaItem.posterShape}
-                                                playname={selectedMetaItemIndex === index}
-                                                deepLinks={metaItem.deepLinks}
-                                                watched={metaItem.watched}
-                                                data-index={index}
-                                                onClick={metaItemOnClick}
-                                            />
-                                        ))}
-                                    </div>
-                    }
+                    {renderCatalogContent()}
                 </div>
-                {
-                    selectedMetaItem !== null ?
-                        <MetaPreview
-                            className={styles['meta-preview-container']}
-                            compact={true}
-                            ref={metaPreviewRef}
-                            name={selectedMetaItem.name}
-                            logo={selectedMetaItem.logo}
-                            background={selectedMetaItem.poster}
-                            runtime={selectedMetaItem.runtime}
-                            releaseInfo={selectedMetaItem.releaseInfo}
-                            released={selectedMetaItem.released}
-                            description={selectedMetaItem.description}
-                            links={selectedMetaItem.links}
-                            deepLinks={selectedMetaItem.deepLinks}
-                            trailerStreams={selectedMetaItem.trailerStreams}
-                            inLibrary={selectedMetaItem.inLibrary}
-                            toggleInLibrary={selectedMetaItem.inLibrary ? removeFromLibrary : addToLibrary}
-                            metaId={selectedMetaItem.id}
-                            like={selectedMetaItem.like}
-                        />
-                        :
-                        discover.catalog !== null && discover.catalog.content.type === 'Loading' ?
-                            <div className={styles['meta-preview-container']} />
-                            :
-                            null
-                }
+                {renderMetaPreview()}
             </div>
             {
                 inputsModalOpen ?
