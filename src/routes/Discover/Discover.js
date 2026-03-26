@@ -10,6 +10,7 @@ const { CONSTANTS, useBinaryState, useOnScrollToBottom, withCoreSuspender } = re
 const { AddonDetailsModal, Button, DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, ModalDialog, MultiselectMenu } = require('stremio/components');
 const useDiscover = require('./useDiscover');
 const useSelectableInputs = require('./useSelectableInputs');
+const useInstalledAddons = require('../Addons/useInstalledAddons');
 const styles = require('./styles');
 
 const SCROLL_TO_BOTTOM_THRESHOLD = 400;
@@ -26,20 +27,28 @@ const Discover = ({ urlParams, queryParams }) => {
     const metasContainerRef = React.useRef();
     const metaPreviewRef = React.useRef();
 
+    const installedAddons = useInstalledAddons({ transportUrl: null, catalogId: null });
+    const selectedAddon = React.useMemo(() => {
+        const selected = discover.selectable.catalogs.find(({ selected }) => selected)?.addon ?? null;
+        const addon = installedAddons.catalog.find(({ manifest }) => manifest.id === selected?.manifest.id);
+        return addon;
+    }, [discover.selectable.catalogs, installedAddons]);
+    const isEpgLayout = React.useMemo(() => !!selectedAddon?.manifest?.behaviorHints?.epgEndpoint, [selectedAddon]);
+
     React.useEffect(() => {
-        if (discover.catalog?.content.type === 'Loading') {
+        if (!isEpgLayout && discover.catalog?.content.type === 'Loading' && metasContainerRef.current) {
             metasContainerRef.current.scrollTop = 0;
         }
-    }, [discover.catalog]);
+    }, [discover.catalog, isEpgLayout]);
     React.useEffect(() => {
-        if (hasNextPage && metasContainerRef.current) {
+        if (!isEpgLayout && hasNextPage && metasContainerRef.current) {
             const containerHeight = metasContainerRef.current.scrollHeight;
             const viewportHeight = metasContainerRef.current.clientHeight;
             if (containerHeight <= viewportHeight + SCROLL_TO_BOTTOM_THRESHOLD) {
                 loadNextPage();
             }
         }
-    }, [hasNextPage, loadNextPage]);
+    }, [isEpgLayout, hasNextPage, loadNextPage]);
     const selectedMetaItem = React.useMemo(() => {
         return discover.catalog !== null &&
             discover.catalog.content.type === 'Ready' &&
