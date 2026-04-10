@@ -31,7 +31,6 @@ const { default: Indicator } = require('./Indicator/Indicator');
 
 const findTrackByLang = (tracks, lang) => tracks.find((track) => track.lang === lang || langs.where('1', track.lang)?.[2] === lang);
 const findTrackById = (tracks, id) => tracks.find((track) => track.id === id);
-const getTrackLang = (tracks, id) => id !== null ? findTrackById(tracks, id)?.lang : null;
 
 const Player = ({ urlParams, queryParams }) => {
     const { t } = useTranslation();
@@ -236,27 +235,19 @@ const Player = ({ urlParams, queryParams }) => {
 
     }, []);
 
-    const onSubtitlesTrackSelected = React.useCallback((id) => {
-        video.setSubtitlesTrack(id);
+    const onSubtitlesTrackSelected = React.useCallback((track) => {
+        video.setSubtitlesTrack(track?.id ?? null);
         streamStateChanged({
-            subtitleTrack: {
-                id,
-                embedded: true,
-                lang: getTrackLang(video.state.subtitlesTracks, id),
-            },
+            subtitleTrack: track ? { id: track.id, embedded: true, lang: track.lang } : null,
         });
-    }, [streamStateChanged, video.state.subtitlesTracks]);
+    }, [streamStateChanged]);
 
-    const onExtraSubtitlesTrackSelected = React.useCallback((id) => {
-        video.setExtraSubtitlesTrack(id);
+    const onExtraSubtitlesTrackSelected = React.useCallback((track) => {
+        video.setExtraSubtitlesTrack(track?.id ?? null);
         streamStateChanged({
-            subtitleTrack: {
-                id,
-                embedded: false,
-                lang: getTrackLang(video.state.extraSubtitlesTracks, id),
-            },
+            subtitleTrack: track ? { id: track.id, embedded: false, lang: track.lang } : null,
         });
-    }, [streamStateChanged, video.state.extraSubtitlesTracks]);
+    }, [streamStateChanged]);
 
     const onAudioTrackSelected = React.useCallback((id) => {
         video.setAudioTrack(id);
@@ -470,15 +461,16 @@ const Player = ({ urlParams, queryParams }) => {
 
             const savedTrackId = player.streamState?.subtitleTrack?.id;
             const savedLang = player.streamState?.subtitleTrack?.lang;
-            const fallbackLang = savedLang ?? settings.subtitlesLanguage;
 
-            const subtitlesTrack = savedTrackId ?
-                findTrackById(video.state.subtitlesTracks, savedTrackId) :
-                findTrackByLang(video.state.subtitlesTracks, fallbackLang);
+            const subtitlesTrack =
+                savedTrackId ? findTrackById(video.state.subtitlesTracks, savedTrackId) :
+                    savedLang ? findTrackByLang(video.state.subtitlesTracks, savedLang) :
+                        findTrackByLang(video.state.subtitlesTracks, settings.subtitlesLanguage);
 
-            const extraSubtitlesTrack = savedTrackId ?
-                findTrackById(video.state.extraSubtitlesTracks, savedTrackId) :
-                findTrackByLang(video.state.extraSubtitlesTracks, fallbackLang);
+            const extraSubtitlesTrack =
+                savedTrackId ? findTrackById(video.state.extraSubtitlesTracks, savedTrackId) :
+                    savedLang ? findTrackByLang(video.state.extraSubtitlesTracks, savedLang) :
+                        findTrackByLang(video.state.extraSubtitlesTracks, settings.subtitlesLanguage);
 
             if (subtitlesTrack && subtitlesTrack.id) {
                 video.setSubtitlesTrack(subtitlesTrack.id);
