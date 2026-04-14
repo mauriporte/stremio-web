@@ -94,25 +94,26 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
             }
         } else if (track.embedded) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
-                props.onSubtitlesTrackSelected(track.id);
+                props.onSubtitlesTrackSelected(track);
             }
         } else {
             if (typeof props.onExtraSubtitlesTrackSelected === 'function') {
-                props.onExtraSubtitlesTrackSelected(track.id);
+                props.onExtraSubtitlesTrackSelected(track);
             }
         }
     }, [allSubtitles, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
     const subtitlesTrackOnClick = React.useCallback((event) => {
-        if (event.currentTarget.dataset.embedded === 'true') {
+        const track = subtitlesTracksForLanguage.find((t) => t.id === event.currentTarget.dataset.id) ?? null;
+        if (track?.embedded) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
-                props.onSubtitlesTrackSelected(event.currentTarget.dataset.id);
+                props.onSubtitlesTrackSelected(track);
             }
         } else {
             if (typeof props.onExtraSubtitlesTrackSelected === 'function') {
-                props.onExtraSubtitlesTrackSelected(event.currentTarget.dataset.id);
+                props.onExtraSubtitlesTrackSelected(track);
             }
         }
-    }, [props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
+    }, [subtitlesTracksForLanguage, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
     const onSubtitlesDelayChanged = React.useCallback((value) => {
         if (typeof props.selectedExtraSubtitlesTrackId === 'string') {
             if (props.extraSubtitlesDelay !== null && !isNaN(props.extraSubtitlesDelay)) {
@@ -189,7 +190,7 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
                     subtitlesTracksForLanguage.length > 0 ?
                         <div className={styles['variants-list']}>
                             {subtitlesTracksForLanguage.map((track, index) => (
-                                <Button key={index} title={track.label} className={classnames(styles['variant-option'], { 'selected': props.selectedSubtitlesTrackId === track.id || props.selectedExtraSubtitlesTrackId === track.id })} data-id={track.id} data-origin={track.origin} data-embedded={track.embedded} onClick={subtitlesTrackOnClick}>
+                                <Button key={index} title={track.label} className={classnames(styles['variant-option'], { 'selected': props.selectedSubtitlesTrackId === track.id || props.selectedExtraSubtitlesTrackId === track.id })} data-id={track.id} data-origin={track.origin} onClick={subtitlesTrackOnClick}>
                                     <div className={styles['info']}>
                                         <div className={styles['variant-label']}>
                                             {
