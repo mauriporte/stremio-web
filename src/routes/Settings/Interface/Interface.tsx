@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useServices } from 'stremio/services';
-import { MultiselectMenu, Toggle } from 'stremio/components';
+import { Scale, MultiselectMenu, Toggle } from 'stremio/components';
 import { Section, Option } from '../components';
 import useInterfaceOptions from './useInterfaceOptions';
 
@@ -13,6 +13,7 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
 
     const {
         interfaceLanguageSelect,
+        interfaceSize,
         quitOnCloseToggle,
         escExitFullscreenToggle,
         hideSpoilersToggle,
@@ -26,6 +27,12 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                     {...interfaceLanguageSelect}
                 />
             </Option>
+            {
+                shell.active &&
+                    <Option label={'SETTINGS_UI_SIZE'}>
+                        <Scale tabIndex={-1} {...interfaceSize} />
+                    </Option>
+            }
             {
                 shell.active &&
                     <Option label={'SETTINGS_QUIT_ON_CLOSE'}>

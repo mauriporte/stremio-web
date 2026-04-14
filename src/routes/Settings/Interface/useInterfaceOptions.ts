@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { interfaceLanguages, useLanguageSorting } from 'stremio/common';
+import { INTERFACE_SCALES } from 'stremio/common/CONSTANTS';
 import { useServices } from 'stremio/services';
 
 const useInterfaceOptions = (profile: Profile) => {
@@ -32,6 +33,26 @@ const useInterfaceOptions = (profile: Profile) => {
             });
         }
     }), [profile.settings, sortedOptions]);
+
+    const interfaceSize = useMemo(() => ({
+        min: 25,
+        max: 175,
+        step: 25,
+        value: profile.settings.interfaceScale,
+        options: Object.keys(INTERFACE_SCALES).map((value) => parseInt(value)),
+        onChange: (value: number) => {
+            core.transport.dispatch({
+                action: 'Ctx',
+                args: {
+                    action: 'UpdateSettings',
+                    args: {
+                        ...profile.settings,
+                        interfaceScale: value
+                    }
+                }
+            });
+        }
+    }), [profile.settings]);
 
     const escExitFullscreenToggle = useMemo(() => ({
         checked: profile.settings.escExitFullscreen,
@@ -83,6 +104,7 @@ const useInterfaceOptions = (profile: Profile) => {
 
     return {
         interfaceLanguageSelect,
+        interfaceSize,
         escExitFullscreenToggle,
         quitOnCloseToggle,
         hideSpoilersToggle,

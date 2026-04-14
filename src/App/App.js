@@ -141,6 +141,10 @@ const App = () => {
                         i18n.changeLanguage(args.settings.interfaceLanguage);
                     }
 
+                    if (args && args.settings && typeof args.settings.interfaceScale === 'number') {
+                        shell.scaleInterface(args.settings.interfaceScale);
+                    }
+
                     if (args?.settings?.quitOnClose && shell.windowClosed) {
                         shell.send('quit');
                     }
@@ -152,6 +156,10 @@ const App = () => {
         const onCtxState = (state) => {
             if (state && state.profile && state.profile.settings && typeof state.profile.settings.interfaceLanguage === 'string') {
                 i18n.changeLanguage(state.profile.settings.interfaceLanguage);
+            }
+
+            if (state && state.profile && state.profile.settings && typeof state.profile.settings.interfaceScale === 'number') {
+                shell.scaleInterface(state.profile.settings.interfaceScale);
             }
 
             if (state?.profile?.settings?.quitOnClose && shell.windowClosed) {

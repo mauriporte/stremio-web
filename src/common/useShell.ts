@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import EventEmitter from 'eventemitter3';
+import { INTERFACE_SCALES } from './CONSTANTS';
 
+const UI_SCALES = INTERFACE_SCALES as Record<number, number>;
 const SHELL_EVENT_OBJECT = 'transport';
 const transport = globalThis?.chrome?.webview;
 const events = new EventEmitter();
@@ -55,6 +57,12 @@ const useShell = () => {
         }
     };
 
+    const scaleInterface = (value: number) => {
+        const root = document.documentElement;
+        const size = UI_SCALES[value];
+        root.style.setProperty('font-size', `${size}px`);
+    };
+
     useEffect(() => {
         const onWindowVisibilityChanged = (data: WindowVisibility) => {
             setWindowClosed(data.visible === false && data.visibility === 0);
@@ -97,6 +105,7 @@ const useShell = () => {
         send,
         on,
         off,
+        scaleInterface,
         windowClosed,
         windowHidden,
     };
