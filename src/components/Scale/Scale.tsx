@@ -25,7 +25,7 @@ const Scale = ({ min, max, step, options, value, tabIndex, onChange }: Props) =>
 
     return (
         <div className={styles['scale']}>
-            <div className={styles['ticks']}>
+            <div className={styles['ticks']} style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
                 {
                     options.map((tick) => (
                         <div
@@ -34,7 +34,7 @@ const Scale = ({ min, max, step, options, value, tabIndex, onChange }: Props) =>
                             data-value={tick}
                             onClick={onClick}
                         >
-                            {tick}
+                            {tick}%
                         </div>
                     ))
                 }
