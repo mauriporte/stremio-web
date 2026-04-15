@@ -35,7 +35,7 @@ const useInterfaceOptions = (profile: Profile) => {
     }), [profile.settings, sortedOptions]);
 
     const interfaceSize = useMemo(() => ({
-        min: 25,
+        min: 75,
         max: 175,
         step: 25,
         value: profile.settings.interfaceScale,
