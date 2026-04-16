@@ -636,7 +636,6 @@ const Player = ({ urlParams, queryParams }) => {
         navigator.mediaSession.setActionHandler('nexttrack', nexVideoCallback);
     }, [player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
 
-
     onShortcut('seekForward', (combo) => {
         if (video.state.time !== null) {
             const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
