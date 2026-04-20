@@ -461,6 +461,7 @@ const Player = ({ urlParams, queryParams }) => {
 
             const savedTrackId = player.streamState?.subtitleTrack?.id;
             const savedLang = player.streamState?.subtitleTrack?.lang;
+            const savedIsExternal = savedTrackId && player.streamState?.subtitleTrack?.embedded === false;
 
             const subtitlesTrack =
                 savedTrackId ? findTrackById(video.state.subtitlesTracks, savedTrackId) :
@@ -477,7 +478,9 @@ const Player = ({ urlParams, queryParams }) => {
                 defaultSubtitlesSelected.current = true;
             } else if (extraSubtitlesTrack && extraSubtitlesTrack.id) {
                 video.setExtraSubtitlesTrack(extraSubtitlesTrack.id);
-                defaultSubtitlesSelected.current = true;
+                if (savedIsExternal) {
+                    defaultSubtitlesSelected.current = true;
+                }
             }
         }
     }, [video.state.subtitlesTracks, video.state.extraSubtitlesTracks, player.streamState]);
