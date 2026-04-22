@@ -48,7 +48,7 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
         const userLanguage = languages.toCode(props.subtitlesLanguage) ?? DEFAULT_SUBTITLES_LANGUAGE;
         const interfaceLanguage = languages.toCode(props.interfaceLanguage) ?? DEFAULT_SUBTITLES_LANGUAGE;
         const priorities = [LOCAL_SUBTITLES_LANGUAGE, userLanguage, interfaceLanguage];
-        const langs = Object.keys(Object.groupBy(allSubtitles, ({ lang }) => lang)).sort((a, b) => a.localeCompare(b));
+        const langs = [...new Set(allSubtitles.map(({ lang }) => lang))].sort((a, b) => a.localeCompare(b));
         return sortByValues(langs, priorities);
     }, [allSubtitles, props.subtitlesLanguage, props.interfaceLanguage]);
 
@@ -95,11 +95,11 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
             }
         } else if (track.embedded) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
-                props.onSubtitlesTrackSelected(track.id);
+                props.onSubtitlesTrackSelected(track);
             }
         } else {
             if (typeof props.onExtraSubtitlesTrackSelected === 'function') {
-                props.onExtraSubtitlesTrackSelected(track.id);
+                props.onExtraSubtitlesTrackSelected(track);
             }
         }
     }, [allSubtitles, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
@@ -113,7 +113,7 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
                 props.onExtraSubtitlesTrackSelected(track.id);
             }
         }
-    }, [props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
+    }, [subtitlesTracksForLanguage, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
     const onSubtitlesDelayChanged = React.useCallback((value) => {
         if (typeof props.selectedExtraSubtitlesTrackId === 'string') {
             if (props.extraSubtitlesDelay !== null && !isNaN(props.extraSubtitlesDelay)) {

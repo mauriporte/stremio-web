@@ -28,6 +28,7 @@ const useVideo = require('./useVideo');
 const styles = require('./styles');
 const Video = require('./Video');
 const { default: Indicator } = require('./Indicator/Indicator');
+const { default: useMediaSession } = require('./useMediaSession');
 
 const findTrackByLang = (tracks, lang) => tracks.find((track) => track.lang === lang || langs.where('1', track.lang)?.[2] === lang);
 const findTrackById = (tracks, id) => tracks.find((track) => track.id === id);
@@ -235,23 +236,17 @@ const Player = ({ urlParams, queryParams }) => {
 
     }, []);
 
-    const onSubtitlesTrackSelected = React.useCallback((id) => {
-        video.setSubtitlesTrack(id);
+    const onSubtitlesTrackSelected = React.useCallback((track) => {
+        video.setSubtitlesTrack(track?.id ?? null);
         streamStateChanged({
-            subtitleTrack: {
-                id,
-                embedded: true,
-            },
+            subtitleTrack: track ? { id: track.id, embedded: true, lang: track.lang } : null,
         });
     }, [streamStateChanged]);
 
-    const onExtraSubtitlesTrackSelected = React.useCallback((id) => {
-        video.setExtraSubtitlesTrack(id);
+    const onExtraSubtitlesTrackSelected = React.useCallback((track) => {
+        video.setExtraSubtitlesTrack(track?.id ?? null);
         streamStateChanged({
-            subtitleTrack: {
-                id,
-                embedded: false,
-            },
+            subtitleTrack: track ? { id: track.id, embedded: false, lang: track.lang } : null,
         });
     }, [streamStateChanged]);
 
@@ -466,23 +461,34 @@ const Player = ({ urlParams, queryParams }) => {
             }
 
             const savedTrackId = player.streamState?.subtitleTrack?.id;
-            const subtitlesTrack = savedTrackId ?
-                findTrackById(video.state.subtitlesTracks, savedTrackId) :
-                findTrackByLang(video.state.subtitlesTracks, settings.subtitlesLanguage);
+            const savedLang = player.streamState?.subtitleTrack?.lang;
+            const savedIsExternal = savedTrackId && player.streamState?.subtitleTrack?.embedded === false;
 
-            const extraSubtitlesTrack = savedTrackId ?
-                findTrackById(video.state.extraSubtitlesTracks, savedTrackId) :
-                findTrackByLang(video.state.extraSubtitlesTracks, settings.subtitlesLanguage);
+            const subtitlesTrack =
+                savedTrackId ? findTrackById(video.state.subtitlesTracks, savedTrackId) :
+                    savedLang ? findTrackByLang(video.state.subtitlesTracks, savedLang) :
+                        findTrackByLang(video.state.subtitlesTracks, settings.subtitlesLanguage);
+
+            const extraSubtitlesTrack =
+                savedTrackId ? findTrackById(video.state.extraSubtitlesTracks, savedTrackId) :
+                    savedLang ? findTrackByLang(video.state.extraSubtitlesTracks, savedLang) :
+                        findTrackByLang(video.state.extraSubtitlesTracks, settings.subtitlesLanguage);
 
             if (subtitlesTrack && subtitlesTrack.id) {
-                video.setSubtitlesTrack(subtitlesTrack.id);
+                if (video.state.selectedSubtitlesTrackId !== subtitlesTrack.id) {
+                    video.setSubtitlesTrack(subtitlesTrack.id);
+                }
                 defaultSubtitlesSelected.current = true;
             } else if (extraSubtitlesTrack && extraSubtitlesTrack.id) {
-                video.setExtraSubtitlesTrack(extraSubtitlesTrack.id);
-                defaultSubtitlesSelected.current = true;
+                if (video.state.selectedExtraSubtitlesTrackId !== extraSubtitlesTrack.id) {
+                    video.setExtraSubtitlesTrack(extraSubtitlesTrack.id);
+                }
+                if (savedIsExternal) {
+                    defaultSubtitlesSelected.current = true;
+                }
             }
         }
-    }, [video.state.subtitlesTracks, video.state.extraSubtitlesTracks, player.streamState]);
+    }, [video.state.subtitlesTracks, video.state.extraSubtitlesTracks, video.state.selectedSubtitlesTrackId, video.state.selectedExtraSubtitlesTrackId, player.streamState]);
 
     // Auto audio track selection
     React.useEffect(() => {
@@ -591,63 +597,7 @@ const Player = ({ urlParams, queryParams }) => {
         }
     }, [settings.pauseOnMinimize, shell.windowClosed, shell.windowHidden]);
 
-    // Media Session PlaybackState
-    React.useEffect(() => {
-        if (!navigator.mediaSession) return;
-
-        const playbackState = !video.state.paused ? 'playing' : 'paused';
-        navigator.mediaSession.playbackState = playbackState;
-
-        return () => navigator.mediaSession.playbackState = 'none';
-    }, [video.state.paused]);
-
-    // Media Session Metadata
-    React.useEffect(() => {
-        if (!navigator.mediaSession) return;
-
-        const metaItem = player.metaItem && player.metaItem?.type === 'Ready' ? player.metaItem.content : null;
-        const videoId = player.selected ? player.selected?.streamRequest?.path?.id : null;
-        const video = metaItem ? metaItem.videos.find(({ id }) => id === videoId) : null;
-
-        const videoInfo = video && video.season && video.episode ? ` (${video.season}x${video.episode})` : null;
-        const videoTitle = video ? `${video.title}${videoInfo}` : null;
-        const metaTitle = metaItem ? metaItem.name : null;
-        const imageUrl = metaItem ? metaItem.logo : null;
-
-        const title = videoTitle ?? metaTitle;
-        const artist = videoTitle ? metaTitle : undefined;
-        const artwork = imageUrl ? [{ src: imageUrl }] : undefined;
-
-        if (title) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title,
-                artist,
-                artwork,
-            });
-        }
-    }, [player.metaItem, player.selected]);
-
-    // Media Session Actions
-    React.useEffect(() => {
-        if (!navigator.mediaSession) return;
-
-        navigator.mediaSession.setActionHandler('play', onPlayRequested);
-        navigator.mediaSession.setActionHandler('pause', onPauseRequested);
-
-        const nexVideoCallback = player.nextVideo ? onNextVideoRequested : null;
-        navigator.mediaSession.setActionHandler('nexttrack', nexVideoCallback);
-    }, [player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
-
-    onShortcut('playPause', () => {
-        if (video.state.paused !== null) {
-            if (video.state.paused) {
-                onPlayRequested();
-                setSeeking(false);
-            } else if (!pressTimer.current) {
-                onPauseRequested();
-            }
-        }
-    }, [video.state.paused, pressTimer.current, onPlayRequested, onPauseRequested], !menusOpen);
+    useMediaSession(video.state, player, onPlayRequested, onPauseRequested, onNextVideoRequested);
 
     onShortcut('seekForward', (combo) => {
         if (video.state.time !== null) {
@@ -745,7 +695,7 @@ const Player = ({ urlParams, queryParams }) => {
     onShortcut('statisticsMenu', () => {
         closeMenus();
         const stream = player.selected?.stream;
-        if (streamingServer?.statistics?.type !== 'Err' && typeof stream === 'string' && typeof stream === 'number') {
+        if (streamingServer?.statistics?.type !== 'Err' && typeof stream?.infoHash === 'string' && typeof stream?.fileIdx === 'number') {
             toggleStatisticsMenu();
         }
     }, [player.selected, streamingServer.statistics, toggleStatisticsMenu]);
@@ -793,7 +743,17 @@ const Player = ({ urlParams, queryParams }) => {
             if (e.code === 'Space') {
                 clearTimeout(pressTimer.current);
                 pressTimer.current = null;
-                onPlaybackSpeedChanged(playbackSpeed.current);
+                if (longPress.current) {
+                    onPlaybackSpeedChanged(playbackSpeed.current);
+                } else if (!menusOpen && video.state.paused !== null) {
+                    if (video.state.paused) {
+                        onPlayRequested();
+                        setSeeking(false);
+                    } else {
+                        onPauseRequested();
+                    }
+                }
+                longPress.current = false;
             }
         };
 
@@ -832,12 +792,23 @@ const Player = ({ urlParams, queryParams }) => {
             }
         };
 
+        const onBlur = () => {
+            clearTimeout(pressTimer.current);
+            pressTimer.current = null;
+            if (longPress.current) {
+                onPlaybackSpeedChanged(playbackSpeed.current);
+                longPress.current = false;
+            }
+            setSeeking(false);
+        };
+
         if (routeFocused) {
             window.addEventListener('keyup', onKeyUp);
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('wheel', onWheel);
             window.addEventListener('mousedown', onMouseDownHold);
             window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('blur', onBlur);
         }
         return () => {
             window.removeEventListener('keyup', onKeyUp);
@@ -845,8 +816,9 @@ const Player = ({ urlParams, queryParams }) => {
             window.removeEventListener('wheel', onWheel);
             window.removeEventListener('mousedown', onMouseDownHold);
             window.removeEventListener('mouseup', onMouseUp);
+            window.removeEventListener('blur', onBlur);
         };
-    }, [routeFocused, menusOpen, video.state.volume]);
+    }, [routeFocused, menusOpen, video.state.volume, video.state.paused]);
 
     React.useEffect(() => {
         video.events.on('error', onError);
