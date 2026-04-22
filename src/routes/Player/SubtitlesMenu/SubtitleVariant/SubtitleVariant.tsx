@@ -2,10 +2,10 @@
 
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import classNames from 'classnames';
-import Icon from '@stremio/stremio-icons/react';
 import { Button, ContextMenu } from 'stremio/components';
 import { languages, useToast } from 'stremio/common';
+import classNames from 'classnames';
+import Icon from '@stremio/stremio-icons/react';
 import styles from './SubtitleVariant.less';
 
 type SubtitlesTrack = {
@@ -62,7 +62,7 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
         }
     }, [track.addonSubtitleId, copyToClipboard]);
 
-    const button = (
+    return (
         <Button
             ref={buttonRef}
             title={track.label}
@@ -78,19 +78,9 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
                 </div>
             </div>
             {selected ? <div className={styles['icon']} /> : null}
-        </Button>
-    );
-
-    if (track.embedded) {
-        return button;
-    }
-
-    return (
-        <>
-            {button}
-            <ContextMenu on={triggers} autoClose={true} lock={'bottom'}>
-                {
-                    downloadUrl ?
+            {!track.embedded &&
+                <ContextMenu on={triggers} autoClose={true} lock={'bottom'}>
+                    {downloadUrl ?
                         <Button
                             className={styles['context-menu-option']}
                             title={t('CTX_DOWNLOAD_SUBTITLE')}
@@ -105,9 +95,8 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
                         </Button>
                         :
                         null
-                }
-                {
-                    canCopyUrl ?
+                    }
+                    {canCopyUrl ?
                         <Button
                             className={styles['context-menu-option']}
                             title={t('CTX_COPY_SUBTITLE_URL')}
@@ -120,9 +109,8 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
                         </Button>
                         :
                         null
-                }
-                {
-                    track.addonSubtitleId ?
+                    }
+                    {track.addonSubtitleId ?
                         <Button
                             className={styles['context-menu-option']}
                             title={t('CTX_COPY_SUBTITLE_ID')}
@@ -135,9 +123,10 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
                         </Button>
                         :
                         null
-                }
-            </ContextMenu>
-        </>
+                    }
+                </ContextMenu>
+            }
+        </Button>
     );
 };
 
