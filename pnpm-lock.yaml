@@ -21,11 +21,11 @@ importers:
         specifier: 0.56.4
         version: 0.56.4
       '@stremio/stremio-icons':
-        specifier: 5.8.0
-        version: 5.8.0
+        specifier: 5.10.0
+        version: 5.10.0
       '@stremio/stremio-video':
-        specifier: 0.0.75
-        version: 0.0.75
+        specifier: 0.0.76
+        version: 0.0.76
       a-color-picker:
         specifier: 1.2.1
         version: 1.2.1
@@ -1123,11 +1123,11 @@ packages:
   '@stremio/stremio-core-web@0.56.4':
     resolution: {integrity: sha512-tFAMYgKrJ1bkvHRMpxDykM/844sDjgRPFk6FLhjQiwh01OHIyEgDqGo/NgwFM+CuMR4mW676SDvwNHkK0Xqg3w==}
 
-  '@stremio/stremio-icons@5.8.0':
-    resolution: {integrity: sha512-IVUvQbIWfA4YEHCTed7v/sdQJCJ+OOCf84LTWpkE2W6GLQ+15WHcMEJrVkE1X3ekYJnGg3GjT0KLO6tKSU0P4w==}
+  '@stremio/stremio-icons@5.10.0':
+    resolution: {integrity: sha512-Zw/vGC3D2yeQfk8xv/tfMJTDvbCPOI91tBg4XpR2+EgbZSX8Xvm7Vz457PIhFPhTAwdOPHp0VX0M3gzjbt0zOg==}
 
-  '@stremio/stremio-video@0.0.75':
-    resolution: {integrity: sha512-oKXMq156BVagzziWoTsmgNYABCSfwV9hR/TM6+JR4lne5pW4qmUN17ba/Fxsr+USKHeCKUaz1u0asKBj06HfyA==}
+  '@stremio/stremio-video@0.0.76':
+    resolution: {integrity: sha512-q/mCnp4mBReWbtreyeYAf0wD8z+jL4wA5GdkOLPY8o5OPZPUv9Qa9p3FNkK3CMVWf3TP1FzeNj3KYKqUVf5/2Q==}
 
   '@stylistic/eslint-plugin-jsx@4.4.1':
     resolution: {integrity: sha512-83SInq4u7z71vWwGG+6ViOtlOmZ6tSrDkMPhrvdBBTGMLA0gs22WSdhQ4vZP3oJ5Xg4ythvqeUiFSedvVxzhyA==}
@@ -5874,9 +5874,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.1
 
-  '@stremio/stremio-icons@5.8.0': {}
+  '@stremio/stremio-icons@5.10.0': {}
 
-  '@stremio/stremio-video@0.0.75':
+  '@stremio/stremio-video@0.0.76':
     dependencies:
       buffer: 6.0.3
       color: 4.2.3
