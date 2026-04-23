@@ -65,7 +65,7 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
     return (
         <Button
             ref={buttonRef}
-            title={track.label}
+            title={variantLabel}
             onClick={onSelectClick}
             className={classNames(styles['variant-option'], { 'selected': selected })}
         >
