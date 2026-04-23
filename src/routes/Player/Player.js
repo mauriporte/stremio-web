@@ -99,7 +99,7 @@ const Player = ({ urlParams, queryParams }) => {
     const isNavigating = React.useRef(false);
 
     const VIDEO_SCALES = ['contain', 'cover', 'fill'];
-    const VIDEO_SCALE_LABELS = { contain: 'Fit', cover: 'Crop', fill: 'Stretch' };
+    const VIDEO_SCALE_LABELS = { contain: t('PLAYER_SCALE_FIT'), cover: t('PLAYER_SCALE_CROP'), fill: t('PLAYER_SCALE_STRETCH') };
 
     const playbackSpeed = React.useRef(video.state.playbackSpeed || 1);
     const pressTimer = React.useRef(null);
@@ -608,6 +608,29 @@ const Player = ({ urlParams, queryParams }) => {
     }, [settings.pauseOnMinimize, shell.windowClosed, shell.windowHidden]);
 
     useMediaSession(video.state, player, onPlayRequested, onPauseRequested, onNextVideoRequested);
+
+    React.useEffect(() => {
+        const onMediaKey = (action) => {
+            switch (action) {
+                case 'play-pause':
+                    video.state.paused ? onPlayRequested() : onPauseRequested();
+                    break;
+                case 'next-track':
+                    if (player.nextVideo !== null) {
+                        video.setTime(0);
+                        onNextVideoRequested();
+                    }
+                    break;
+                case 'previous-track':
+                    if (video.state.time !== null && video.state.time > 5000) {
+                        onSeekRequested(0);
+                    }
+                    break;
+            }
+        };
+        shell.on('media-key', onMediaKey);
+        return () => shell.off('media-key', onMediaKey);
+    }, [video.state.paused, video.state.time, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested, onSeekRequested]);
 
     onShortcut('seekForward', (combo) => {
         if (video.state.time !== null) {
