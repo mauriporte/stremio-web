@@ -106,11 +106,11 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
     const subtitlesTrackOnSelect = React.useCallback((track) => {
         if (track.embedded) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
-                props.onSubtitlesTrackSelected(track.id);
+                props.onSubtitlesTrackSelected(track);
             }
         } else {
             if (typeof props.onExtraSubtitlesTrackSelected === 'function') {
-                props.onExtraSubtitlesTrackSelected(track.id);
+                props.onExtraSubtitlesTrackSelected(track);
             }
         }
     }, [props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);

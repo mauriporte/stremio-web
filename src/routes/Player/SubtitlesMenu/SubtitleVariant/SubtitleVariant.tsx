@@ -39,6 +39,9 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
     const variantLabel = hasValidLabel(track.label) ? track.label : languages.label(track.lang);
     const downloadFileName = hasValidLabel(track.label) ? track.label : `subtitle-${track.lang || 'unknown'}`;
     const canCopyUrl = typeof downloadUrl === 'string' && !downloadUrl.startsWith('blob:');
+    const hoverTitle = hasValidLabel(track.label)
+        ? track.label
+        : downloadUrl?.split('/').pop()?.split('?')[0] || variantLabel;
 
     const onSelectClick = useCallback(() => {
         onSelect(track);
@@ -65,7 +68,7 @@ const SubtitleVariant = ({ track, selected, onSelect }: Props) => {
     return (
         <Button
             ref={buttonRef}
-            title={variantLabel}
+            title={hoverTitle}
             onClick={onSelectClick}
             className={classNames(styles['variant-option'], { 'selected': selected })}
         >
