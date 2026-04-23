@@ -609,6 +609,29 @@ const Player = ({ urlParams, queryParams }) => {
 
     useMediaSession(video.state, player, onPlayRequested, onPauseRequested, onNextVideoRequested);
 
+    React.useEffect(() => {
+        const onMediaKey = (action) => {
+            switch (action) {
+                case 'play-pause':
+                    video.state.paused ? onPlayRequested() : onPauseRequested();
+                    break;
+                case 'next-track':
+                    if (player.nextVideo !== null) {
+                        video.setTime(0);
+                        onNextVideoRequested();
+                    }
+                    break;
+                case 'previous-track':
+                    if (video.state.time !== null && video.state.time > 5000) {
+                        onSeekRequested(0);
+                    }
+                    break;
+            }
+        };
+        shell.on('media-key', onMediaKey);
+        return () => shell.off('media-key', onMediaKey);
+    }, [video.state.paused, video.state.time, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested, onSeekRequested]);
+
     onShortcut('seekForward', (combo) => {
         if (video.state.time !== null) {
             const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
