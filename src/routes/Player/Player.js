@@ -98,6 +98,9 @@ const Player = ({ urlParams, queryParams }) => {
 
     const isNavigating = React.useRef(false);
 
+    const VIDEO_SCALES = ['contain', 'cover', 'fill'];
+    const VIDEO_SCALE_LABELS = { contain: t('PLAYER_SCALE_FIT'), cover: t('PLAYER_SCALE_CROP'), fill: t('PLAYER_SCALE_STRETCH') };
+
     const playbackSpeed = React.useRef(video.state.playbackSpeed || 1);
     const pressTimer = React.useRef(null);
     const longPress = React.useRef(false);
@@ -235,6 +238,13 @@ const Player = ({ urlParams, queryParams }) => {
         playbackSpeed.current = rate;
 
     }, []);
+
+    const onVideoScaleChanged = React.useCallback(() => {
+        const currentScale = video.state.videoScale || 'contain';
+        const currentIndex = VIDEO_SCALES.indexOf(currentScale);
+        const nextScale = VIDEO_SCALES[(currentIndex + 1) % VIDEO_SCALES.length];
+        video.setVideoScale(nextScale);
+    }, [video.state.videoScale]);
 
     const onSubtitlesTrackSelected = React.useCallback((track) => {
         video.setSubtitlesTrack(track?.id ?? null);
@@ -599,6 +609,29 @@ const Player = ({ urlParams, queryParams }) => {
 
     useMediaSession(video.state, player, onPlayRequested, onPauseRequested, onNextVideoRequested);
 
+    React.useEffect(() => {
+        const onMediaKey = (action) => {
+            switch (action) {
+                case 'play-pause':
+                    video.state.paused ? onPlayRequested() : onPauseRequested();
+                    break;
+                case 'next-track':
+                    if (player.nextVideo !== null) {
+                        video.setTime(0);
+                        onNextVideoRequested();
+                    }
+                    break;
+                case 'previous-track':
+                    if (video.state.time !== null && video.state.time > 5000) {
+                        onSeekRequested(0);
+                    }
+                    break;
+            }
+        };
+        shell.on('media-key', onMediaKey);
+        return () => shell.off('media-key', onMediaKey);
+    }, [video.state.paused, video.state.time, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested, onSeekRequested]);
+
     onShortcut('seekForward', (combo) => {
         if (video.state.time !== null) {
             const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
@@ -916,6 +949,7 @@ const Player = ({ urlParams, queryParams }) => {
                 title={player.title !== null ? player.title : ''}
                 backButton={true}
                 fullscreenButton={true}
+                hdrInfo={video.state.hdrInfo}
                 onMouseMove={onBarMouseMove}
                 onMouseOver={onBarMouseMove}
             />
@@ -955,6 +989,9 @@ const Player = ({ urlParams, queryParams }) => {
                 onToggleSubtitlesMenu={toggleSubtitlesMenu}
                 onToggleAudioMenu={toggleAudioMenu}
                 onToggleSpeedMenu={toggleSpeedMenu}
+                videoScale={video.state.videoScale}
+                videoScaleLabel={VIDEO_SCALE_LABELS[video.state.videoScale || 'contain']}
+                onVideoScaleChanged={onVideoScaleChanged}
                 onToggleStatisticsMenu={toggleStatisticsMenu}
                 onToggleSideDrawer={toggleSideDrawer}
                 onMouseMove={onBarMouseMove}
