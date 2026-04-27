@@ -91,7 +91,6 @@ const Player = ({ urlParams, queryParams }) => {
 
     const nextVideoPopupDismissed = React.useRef(false);
     const defaultSubtitlesSelected = React.useRef(false);
-    const subtitlesEnabled = React.useRef(true);
     const defaultAudioTrackSelected = React.useRef(false);
     const playingOnExternalDevice = React.useRef(false);
     const [error, setError] = React.useState(null);
@@ -673,17 +672,18 @@ const Player = ({ urlParams, queryParams }) => {
     }, [onUpdateSubtitlesSize, onUpdateSubtitlesSize], !menusOpen);
 
     onShortcut('toggleSubtitles', () => {
-        const savedTrack = player.streamState?.subtitleTrack;
+        const isEnabled = video.state.selectedSubtitlesTrackId !== null || video.state.selectedExtraSubtitlesTrackId !== null;
 
-        if (subtitlesEnabled.current) {
+        if (isEnabled) {
             video.setSubtitlesTrack(null);
             video.setExtraSubtitlesTrack(null);
-        } else if (savedTrack?.id) {
-            savedTrack.embedded ? video.setSubtitlesTrack(savedTrack.id) : video.setExtraSubtitlesTrack(savedTrack.id);
+        } else {
+            const savedTrack = player.streamState?.subtitleTrack;
+            if (savedTrack?.id) {
+                savedTrack.embedded ? video.setSubtitlesTrack(savedTrack.id) : video.setExtraSubtitlesTrack(savedTrack.id);
+            }
         }
-
-        subtitlesEnabled.current = !subtitlesEnabled.current;
-    }, [player.streamState], !menusOpen);
+    }, [player.streamState, video.state.selectedSubtitlesTrackId, video.state.selectedExtraSubtitlesTrackId], !menusOpen);
 
     onShortcut('subtitlesMenu', () => {
         closeMenus();
