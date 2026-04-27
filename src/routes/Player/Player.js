@@ -91,6 +91,7 @@ const Player = ({ urlParams, queryParams }) => {
 
     const nextVideoPopupDismissed = React.useRef(false);
     const defaultSubtitlesSelected = React.useRef(false);
+    const lastSubtitleTrack = React.useRef(null);
     const defaultAudioTrackSelected = React.useRef(false);
     const playingOnExternalDevice = React.useRef(false);
     const [error, setError] = React.useState(null);
@@ -246,14 +247,22 @@ const Player = ({ urlParams, queryParams }) => {
     }, [video.state.videoScale]);
 
     const onSubtitlesTrackSelected = React.useCallback((track) => {
+        defaultSubtitlesSelected.current = true;
         video.setSubtitlesTrack(track?.id ?? null);
+        if (track) {
+            lastSubtitleTrack.current = { id: track.id, embedded: true };
+        }
         streamStateChanged({
             subtitleTrack: track ? { id: track.id, embedded: true, lang: track.lang } : null,
         });
     }, [streamStateChanged]);
 
     const onExtraSubtitlesTrackSelected = React.useCallback((track) => {
+        defaultSubtitlesSelected.current = true;
         video.setExtraSubtitlesTrack(track?.id ?? null);
+        if (track) {
+            lastSubtitleTrack.current = { id: track.id, embedded: false };
+        }
         streamStateChanged({
             subtitleTrack: track ? { id: track.id, embedded: false, lang: track.lang } : null,
         });
@@ -537,6 +546,7 @@ const Player = ({ urlParams, queryParams }) => {
     React.useEffect(() => {
         defaultSubtitlesSelected.current = false;
         defaultAudioTrackSelected.current = false;
+        lastSubtitleTrack.current = null;
         nextVideoPopupDismissed.current = false;
         playingOnExternalDevice.current = false;
         // we need a timeout here to make sure that previous page unloads and the new one loads
@@ -659,7 +669,7 @@ const Player = ({ urlParams, queryParams }) => {
 
     onShortcut('volumeDown', () => {
         if (video.state.volume !== null) {
-            onVolumeChangeRequested(Math.min(video.state.volume - 5, 200));
+            onVolumeChangeRequested(Math.max(video.state.volume - 5, 0));
         }
     }, [video.state.volume], !menusOpen);
 
@@ -675,10 +685,15 @@ const Player = ({ urlParams, queryParams }) => {
         const isEnabled = video.state.selectedSubtitlesTrackId !== null || video.state.selectedExtraSubtitlesTrackId !== null;
 
         if (isEnabled) {
+            if (video.state.selectedSubtitlesTrackId) {
+                lastSubtitleTrack.current = { id: video.state.selectedSubtitlesTrackId, embedded: true };
+            } else if (video.state.selectedExtraSubtitlesTrackId) {
+                lastSubtitleTrack.current = { id: video.state.selectedExtraSubtitlesTrackId, embedded: false };
+            }
             video.setSubtitlesTrack(null);
             video.setExtraSubtitlesTrack(null);
         } else {
-            const savedTrack = player.streamState?.subtitleTrack;
+            const savedTrack = player.streamState?.subtitleTrack ?? lastSubtitleTrack.current;
             if (savedTrack?.id) {
                 savedTrack.embedded ? video.setSubtitlesTrack(savedTrack.id) : video.setExtraSubtitlesTrack(savedTrack.id);
             }
