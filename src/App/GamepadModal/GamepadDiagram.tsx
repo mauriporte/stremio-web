@@ -78,20 +78,20 @@ const GamepadDiagram = () => {
                 </filter>
             </defs>
 
-            {/* ===== L2 / R2 TRIGGERS (drawn first, behind everything) ===== */}
+            <g className={styles['anim-controls']}>
+                <path
+                    d={`M${CX - SX - 38},68 Q${CX - SX - 40},48 ${CX - SX - 28},42 L${CX - SX + 28},42 Q${CX - SX + 40},48 ${CX - SX + 38},68 Z`}
+                    fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
+                />
+                <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.L2}</text>
+                <path
+                    d={`M${CX + SX - 38},68 Q${CX + SX - 40},48 ${CX + SX - 28},42 L${CX + SX + 28},42 Q${CX + SX + 40},48 ${CX + SX + 38},68 Z`}
+                    fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
+                />
+                <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.R2}</text>
+            </g>
             <path
-                d={`M${CX - SX - 38},68 Q${CX - SX - 40},48 ${CX - SX - 28},42 L${CX - SX + 28},42 Q${CX - SX + 40},48 ${CX - SX + 38},68 Z`}
-                fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
-            />
-            <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.L2}</text>
-            <path
-                d={`M${CX + SX - 38},68 Q${CX + SX - 40},48 ${CX + SX - 28},42 L${CX + SX + 28},42 Q${CX + SX + 40},48 ${CX + SX + 38},68 Z`}
-                fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
-            />
-            <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.R2}</text>
-
-            {/* ===== CONTROLLER BODY ===== */}
-            <path
+                className={styles['anim-body']}
                 d={`M${CX - 178},${105 + BY}
                     Q${CX - 165},${80 + BY} ${CX - 95},${74 + BY}
                     L${CX + 95},${74 + BY}
@@ -115,122 +115,96 @@ const GamepadDiagram = () => {
                 strokeWidth={'2.5'}
             />
 
-            {/* ===== TOUCHPAD ===== */}
-            <rect x={CX - 58} y={96 + BY} rx={'8'} ry={'8'} width={'116'} height={'48'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1.5'} />
+            <g className={styles['anim-controls']}>
+                <rect x={CX - 58} y={96 + BY} rx={'8'} ry={'8'} width={'116'} height={'48'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1.5'} />
+                <g filter={active === 'l1' ? 'url(#glow)' : undefined}>
+                    <path
+                        d={`M${CX - SX - 40},74 Q${CX - SX - 38},66 ${CX - SX - 30},64 L${CX - SX + 30},64 Q${CX - SX + 38},66 ${CX - SX + 40},74 L${CX - SX + 36},82 Q${CX - SX + 34},85 ${CX - SX + 28},85 L${CX - SX - 28},85 Q${CX - SX - 34},85 ${CX - SX - 36},82 Z`}
+                        fill={'url(#bumperGrad)'} stroke={glow('l1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('l1') || 0.9}
+                    />
+                    <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.L1}</text>
+                </g>
+                <g filter={active === 'r1' ? 'url(#glow)' : undefined}>
+                    <path
+                        d={`M${CX + SX - 40},74 Q${CX + SX - 38},66 ${CX + SX - 30},64 L${CX + SX + 30},64 Q${CX + SX + 38},66 ${CX + SX + 40},74 L${CX + SX + 36},82 Q${CX + SX + 34},85 ${CX + SX + 28},85 L${CX + SX - 28},85 Q${CX + SX - 34},85 ${CX + SX - 36},82 Z`}
+                        fill={'url(#bumperGrad)'} stroke={glow('r1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('r1') || 0.9}
+                    />
+                    <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.R1}</text>
+                </g>
 
-            {/* ===== L1 / R1 BUMPERS (on top of body, on shoulder edge) ===== */}
-            <g filter={active === 'l1' ? 'url(#glow)' : undefined}>
-                <path
-                    d={`M${CX - SX - 40},74 Q${CX - SX - 38},66 ${CX - SX - 30},64 L${CX - SX + 30},64 Q${CX - SX + 38},66 ${CX - SX + 40},74 L${CX - SX + 36},82 Q${CX - SX + 34},85 ${CX - SX + 28},85 L${CX - SX - 28},85 Q${CX - SX - 34},85 ${CX - SX - 36},82 Z`}
-                    fill={'url(#bumperGrad)'} stroke={glow('l1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('l1') || 0.9}
-                />
-                <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.L1}</text>
-            </g>
-            <g filter={active === 'r1' ? 'url(#glow)' : undefined}>
-                <path
-                    d={`M${CX + SX - 40},74 Q${CX + SX - 38},66 ${CX + SX - 30},64 L${CX + SX + 30},64 Q${CX + SX + 38},66 ${CX + SX + 40},74 L${CX + SX + 36},82 Q${CX + SX + 34},85 ${CX + SX + 28},85 L${CX + SX - 28},85 Q${CX + SX - 34},85 ${CX + SX - 36},82 Z`}
-                    fill={'url(#bumperGrad)'} stroke={glow('r1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('r1') || 0.9}
-                />
-                <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.R1}</text>
-            </g>
+                <g filter={active === 'triangle' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX} cy={118 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('triangle') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX} y={123 + BY} textAnchor={'middle'} fill={active === 'triangle' ? '#fff' : '#a89ecc'} fontSize={'12'}>△</text>
+                </g>
 
-            {/* ===== FACE BUTTONS (right, centered at CX+BX) ===== */}
-            {/* △ */}
-            <g filter={active === 'triangle' ? 'url(#glow)' : undefined}>
-                <circle cx={CX + BX} cy={118 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('triangle') || '#5848a0'} strokeWidth={'1.5'} />
-                <text x={CX + BX} y={123 + BY} textAnchor={'middle'} fill={active === 'triangle' ? '#fff' : '#a89ecc'} fontSize={'12'}>△</text>
-            </g>
-            {/* ○ */}
-            <g filter={active === 'circle' ? 'url(#glow)' : undefined}>
-                <circle cx={CX + BX + 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('circle') || '#5848a0'} strokeWidth={'1.5'} />
-                <text x={CX + BX + 30} y={153 + BY} textAnchor={'middle'} fill={active === 'circle' ? '#fff' : '#a89ecc'} fontSize={'12'}>○</text>
-            </g>
-            {/* ✕ */}
-            <g filter={active === 'cross' ? 'url(#glow)' : undefined}>
-                <circle cx={CX + BX} cy={178 + BY} r={'15'} fill={active === 'cross' ? '#9b7fff' : '#7b5bf5'} stroke={'#9b7fff'} strokeWidth={'1.5'} />
-                <text x={CX + BX} y={183 + BY} textAnchor={'middle'} fill={'#fff'} fontSize={'12'}>✕</text>
-            </g>
-            {/* □ */}
-            <g filter={active === 'square' ? 'url(#glow)' : undefined}>
-                <circle cx={CX + BX - 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('square') || '#5848a0'} strokeWidth={'1.5'} />
-                <text x={CX + BX - 30} y={153 + BY} textAnchor={'middle'} fill={active === 'square' ? '#fff' : '#a89ecc'} fontSize={'12'}>□</text>
-            </g>
+                <g filter={active === 'circle' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX + 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('circle') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX + 30} y={153 + BY} textAnchor={'middle'} fill={active === 'circle' ? '#fff' : '#a89ecc'} fontSize={'12'}>○</text>
+                </g>
 
-            {/* ===== D-PAD (left, mirrored at CX-BX) — cosmetic only ===== */}
-            <rect x={CX - BX - 12} y={120 + BY} rx={'3'} ry={'3'} width={'24'} height={'58'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
-            <rect x={CX - BX - 29} y={137 + BY} rx={'3'} ry={'3'} width={'58'} height={'24'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
+                <g filter={active === 'cross' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX} cy={178 + BY} r={'15'} fill={active === 'cross' ? '#9b7fff' : '#7b5bf5'} stroke={'#9b7fff'} strokeWidth={'1.5'} />
+                    <text x={CX + BX} y={183 + BY} textAnchor={'middle'} fill={'#fff'} fontSize={'12'}>✕</text>
+                </g>
 
-            {/* ===== LEFT STICK (CX-STX) ===== */}
-            <g filter={active?.startsWith('stick-') ? 'url(#glow)' : undefined}>
-                <circle cx={CX - STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('stick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
-                <circle cx={CX - STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
-                <text x={CX - STX} y={232 + BY} textAnchor={'middle'} fill={active === 'stick-up' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-up' ? '700' : '400'}>↑</text>
-                <text x={CX - STX} y={253 + BY} textAnchor={'middle'} fill={active === 'stick-down' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-down' ? '700' : '400'}>↓</text>
-                <text x={CX - STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-left' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-left' ? '700' : '400'}>←</text>
-                <text x={CX - STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-right' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-right' ? '700' : '400'}>→</text>
-            </g>
+                <g filter={active === 'square' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX - 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('square') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX - 30} y={153 + BY} textAnchor={'middle'} fill={active === 'square' ? '#fff' : '#a89ecc'} fontSize={'12'}>□</text>
+                </g>
+                <rect x={CX - BX - 12} y={120 + BY} rx={'3'} ry={'3'} width={'24'} height={'58'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
+                <rect x={CX - BX - 29} y={137 + BY} rx={'3'} ry={'3'} width={'58'} height={'24'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
 
-            {/* ===== RIGHT STICK (CX+STX) ===== */}
-            <g filter={active?.startsWith('rstick-') ? 'url(#glow)' : undefined}>
-                <circle cx={CX + STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('rstick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
-                <circle cx={CX + STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
-                <text x={CX + STX} y={232 + BY} textAnchor={'middle'} fill={active === 'rstick-up' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-up' ? '700' : '400'}>{ARROW.UP}</text>
-                <text x={CX + STX} y={253 + BY} textAnchor={'middle'} fill={active === 'rstick-down' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-down' ? '700' : '400'}>{ARROW.DOWN}</text>
-                <text x={CX + STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-left' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-left' ? '700' : '400'}>{ARROW.LEFT}</text>
-                <text x={CX + STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-right' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-right' ? '700' : '400'}>{ARROW.RIGHT}</text>
+                <g filter={active?.startsWith('stick-') ? 'url(#glow)' : undefined}>
+                    <circle cx={CX - STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('stick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
+                    <circle cx={CX - STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
+                    <text x={CX - STX} y={232 + BY} textAnchor={'middle'} fill={active === 'stick-up' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-up' ? '700' : '400'}>↑</text>
+                    <text x={CX - STX} y={253 + BY} textAnchor={'middle'} fill={active === 'stick-down' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-down' ? '700' : '400'}>↓</text>
+                    <text x={CX - STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-left' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-left' ? '700' : '400'}>←</text>
+                    <text x={CX - STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-right' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-right' ? '700' : '400'}>→</text>
+                </g>
+
+                <g filter={active?.startsWith('rstick-') ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('rstick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
+                    <circle cx={CX + STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
+                    <text x={CX + STX} y={232 + BY} textAnchor={'middle'} fill={active === 'rstick-up' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-up' ? '700' : '400'}>{ARROW.UP}</text>
+                    <text x={CX + STX} y={253 + BY} textAnchor={'middle'} fill={active === 'rstick-down' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-down' ? '700' : '400'}>{ARROW.DOWN}</text>
+                    <text x={CX + STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-left' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-left' ? '700' : '400'}>{ARROW.LEFT}</text>
+                    <text x={CX + STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-right' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-right' ? '700' : '400'}>{ARROW.RIGHT}</text>
+                </g>
+
             </g>
 
-            {/* ============================= */}
-            {/* ===== LABELS — LEFT ===== */}
-            {/* ============================= */}
+            <g className={styles['anim-lines']}>
+                <line x1={CX - SX - 40} y1={'74'} x2={'85'} y2={'48'} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'85'} cy={'48'} r={'2'} fill={'#5848a0'} />
+                <line x1={CX - STX - 24} y1={232 + BY} x2={'85'} y2={168} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'85'} cy={168} r={'2'} fill={'#7b5bf5'} />
+                <line x1={CX + BX - 44} y1={148 + BY} x2={'85'} y2={248} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.35'} />
+                <circle cx={'85'} cy={248} r={'2'} fill={'#5848a0'} />
+                <line x1={CX + SX + 40} y1={'74'} x2={'715'} y2={'48'} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'715'} cy={'48'} r={'2'} fill={'#5848a0'} />
+                <line x1={CX + BX + 13} y1={112 + BY} x2={'715'} y2={108} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'715'} cy={108} r={'2'} fill={'#5848a0'} />
+                <line x1={CX + BX + 43} y1={142 + BY} x2={'715'} y2={148} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'715'} cy={148} r={'2'} fill={'#5848a0'} />
+                <line x1={CX + BX + 13} y1={184 + BY} x2={'715'} y2={208} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'715'} cy={208} r={'2'} fill={'#7b5bf5'} />
+                <line x1={CX + STX + 24} y1={234 + BY} x2={'715'} y2={268} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+                <circle cx={'715'} cy={268} r={'2'} fill={'#5848a0'} />
+            </g>
 
-            {/* L1 */}
-            <line x1={CX - SX - 40} y1={'74'} x2={'85'} y2={'48'} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'85'} cy={'48'} r={'2'} fill={'#5848a0'} />
-            <text x={'80'} y={'44'} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_PREV_TAB')}</text>
-
-            {/* Left stick */}
-            <line x1={CX - STX - 24} y1={232 + BY} x2={'85'} y2={168} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'85'} cy={168} r={'2'} fill={'#7b5bf5'} />
-            <text x={'80'} y={164} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_NAVIGATE')}</text>
-
-            {/* □ Square */}
-            <line x1={CX + BX - 44} y1={148 + BY} x2={'85'} y2={248} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.35'} />
-            <circle cx={'85'} cy={248} r={'2'} fill={'#5848a0'} />
-            <text x={'80'} y={244} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_GUIDE')}</text>
-            <text x={'80'} y={259} textAnchor={'end'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_PLAY_PAUSE_PLAYER')}</text>
-
-            {/* ============================= */}
-            {/* ===== LABELS — RIGHT ===== */}
-            {/* ============================= */}
-
-            {/* R1 */}
-            <line x1={CX + SX + 40} y1={'74'} x2={'715'} y2={'48'} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'715'} cy={'48'} r={'2'} fill={'#5848a0'} />
-            <text x={'720'} y={'44'} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_NEXT_TAB')}</text>
-
-            {/* △ Triangle */}
-            <line x1={CX + BX + 13} y1={112 + BY} x2={'715'} y2={108} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'715'} cy={108} r={'2'} fill={'#5848a0'} />
-            <text x={'720'} y={104} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_FULLSCREEN')}</text>
-
-            {/* ○ Circle */}
-            <line x1={CX + BX + 43} y1={142 + BY} x2={'715'} y2={148} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'715'} cy={148} r={'2'} fill={'#5848a0'} />
-            <text x={'720'} y={144} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_BACK')}</text>
-
-            {/* ✕ Cross */}
-            <line x1={CX + BX + 13} y1={184 + BY} x2={'715'} y2={208} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'715'} cy={208} r={'2'} fill={'#7b5bf5'} />
-            <text x={'720'} y={204} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_SELECT')}</text>
-
-            {/* Right stick */}
-            <line x1={CX + STX + 24} y1={234 + BY} x2={'715'} y2={268} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
-            <circle cx={'715'} cy={268} r={'2'} fill={'#5848a0'} />
-            <text x={'720'} y={264} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_LABEL_SEEK_VOL')}</text>
-
-            {/* Compat note */}
-            <text x={CX} y={'475'} textAnchor={'middle'} fill={'#5848a0'} fontSize={'11'}>{t('GAMEPAD_LABEL_COMPAT')}</text>
+            <g className={styles['anim-labels']}>
+                <text x={'80'} y={'44'} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_PREV_TAB')}</text>
+                <text x={'80'} y={164} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_NAVIGATE')}</text>
+                <text x={'80'} y={244} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_GUIDE')}</text>
+                <text x={'80'} y={259} textAnchor={'end'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_PLAY_PAUSE_PLAYER')}</text>
+                <text x={'720'} y={'44'} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_NEXT_TAB')}</text>
+                <text x={'720'} y={104} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_FULLSCREEN')}</text>
+                <text x={'720'} y={144} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_BACK')}</text>
+                <text x={'720'} y={204} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_SELECT')}</text>
+                <text x={'720'} y={264} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_LABEL_SEEK_VOL')}</text>
+                <text x={CX} y={'475'} textAnchor={'middle'} fill={'#5848a0'} fontSize={'11'}>{t('GAMEPAD_LABEL_COMPAT')}</text>
+            </g>
         </svg>
     );
 };
