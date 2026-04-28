@@ -3,6 +3,18 @@
 import { useEffect } from 'react';
 import { useGamepad } from '../GamepadContext';
 
+const FOCUSABLE = '[tabindex="0"]';
+
+const getActiveScope = (fallback: HTMLDivElement | null): HTMLElement | null => {
+    const modal = document.querySelector<HTMLElement>('.modals-container');
+    if (modal && modal.children.length > 0) return modal;
+
+    const dropdown = fallback?.querySelector<HTMLElement>('[class*="dropdown"][class*="open"]');
+    if (dropdown) return dropdown;
+
+    return fallback;
+};
+
 const useContentGamepadNavigation = (
     sectionRef: React.RefObject<HTMLDivElement>,
     gamepadHandlerId: string
@@ -13,12 +25,13 @@ const useContentGamepadNavigation = (
         const handleGamepadNavigation = (
             direction: 'left' | 'right' | 'up' | 'down'
         ) => {
+            const scope = getActiveScope(sectionRef.current);
             const elements = Array.from(
-                sectionRef.current?.querySelectorAll<HTMLDivElement>('[tabindex="0"]') || []
+                scope?.querySelectorAll<HTMLDivElement>(FOCUSABLE) || []
             );
             if (elements.length === 0) return;
 
-            const activeElement = sectionRef.current?.querySelector<HTMLDivElement>(':focus');
+            const activeElement = (scope ?? document)?.querySelector<HTMLDivElement>(':focus');
 
             if (!activeElement) {
                 elements[0].focus();
@@ -26,9 +39,7 @@ const useContentGamepadNavigation = (
             }
 
             let closestElement: HTMLDivElement | null = null;
-
             const currentRect = activeElement.getBoundingClientRect();
-
             let closestDistance = Infinity;
 
             elements.forEach((el) => {
@@ -92,12 +103,13 @@ const useContentGamepadNavigation = (
         };
 
         const onSelect = () => {
+            const scope = getActiveScope(sectionRef.current);
             const elements = Array.from(
-                sectionRef.current?.querySelectorAll<HTMLDivElement>('[tabindex="0"]') || []
+                scope?.querySelectorAll<HTMLDivElement>(FOCUSABLE) || []
             );
             if (elements.length === 0) return;
 
-            const activeElement = sectionRef.current?.querySelector<HTMLDivElement>(':focus');
+            const activeElement = (scope ?? document)?.querySelector<HTMLDivElement>(':focus');
 
             if (!activeElement) {
                 elements[0].focus();
