@@ -13,7 +13,7 @@ const NavMenu = require('./NavMenu');
 const styles = require('./styles');
 const { t } = require('i18next');
 
-const HorizontalNavBar = React.memo(({ className, route, query, title, backButton, searchBar, fullscreenButton, navMenu, ...props }) => {
+const HorizontalNavBar = React.memo(({ className, route, query, title, backButton, searchBar, fullscreenButton, navMenu, hdrInfo, ...props }) => {
     const backButtonOnClick = React.useCallback(() => {
         window.history.back();
     }, []);
@@ -37,7 +37,7 @@ const HorizontalNavBar = React.memo(({ className, route, query, title, backButto
                     <div className={styles['logo-container']}>
                         <Image
                             className={styles['logo']}
-                            src={require('/images/stremio_symbol.png')}
+                            src={require('/assets/images/stremio_symbol.png')}
                             alt={' '}
                         />
                     </div>
@@ -55,6 +55,14 @@ const HorizontalNavBar = React.memo(({ className, route, query, title, backButto
                     null
             }
             <div className={styles['buttons-container']}>
+                {
+                    hdrInfo && (hdrInfo.gamma === 'pq' || hdrInfo.gamma === 'hlg') ?
+                        <div className={styles['hdr-indicator']} title={hdrInfo.gamma === 'pq' ? 'HDR10' : 'HLG'}>
+                            <Icon className={styles['icon']} name={'hdr'} />
+                        </div>
+                        :
+                        null
+                }
                 {
                     !isIOSPWA && fullscreenButton ?
                         <Button className={styles['button-container']} title={fullscreen ? t('EXIT_FULLSCREEN') : t('ENTER_FULLSCREEN')} tabIndex={-1} onClick={fullscreen ? exitFullscreen : requestFullscreen}>
@@ -84,7 +92,10 @@ HorizontalNavBar.propTypes = {
     backButton: PropTypes.bool,
     searchBar: PropTypes.bool,
     fullscreenButton: PropTypes.bool,
-    navMenu: PropTypes.bool
+    navMenu: PropTypes.bool,
+    hdrInfo: PropTypes.shape({
+        gamma: PropTypes.string,
+    }),
 };
 
 module.exports = HorizontalNavBar;
