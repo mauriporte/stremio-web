@@ -449,11 +449,11 @@ const Player = ({ urlParams, queryParams }) => {
     useContentGamepadNavigation(playerRef, GAMEPAD_HANDLER_ID);
 
     React.useEffect(() => {
-        gamepad?.on('buttonA', GAMEPAD_HANDLER_ID, onPlayPause);
+        gamepad?.on('buttonX', GAMEPAD_HANDLER_ID, onPlayPause);
         gamepad?.on('analogRight', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
 
         return () => {
-            gamepad?.off('buttonA', GAMEPAD_HANDLER_ID);
+            gamepad?.off('buttonX', GAMEPAD_HANDLER_ID);
             gamepad?.off('analogRight', GAMEPAD_HANDLER_ID);
         };
     }, [onPlayPause, onGamepadSeekAndVol]);

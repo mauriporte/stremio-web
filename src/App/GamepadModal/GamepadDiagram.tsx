@@ -198,6 +198,7 @@ const GamepadDiagram = () => {
             <line x1={CX + BX - 44} y1={148 + BY} x2={'85'} y2={248} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.35'} />
             <circle cx={'85'} cy={248} r={'2'} fill={'#5848a0'} />
             <text x={'80'} y={244} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_GUIDE')}</text>
+            <text x={'80'} y={259} textAnchor={'end'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_PLAY_PAUSE_PLAYER')}</text>
 
             {/* ============================= */}
             {/* ===== LABELS — RIGHT ===== */}
@@ -222,7 +223,6 @@ const GamepadDiagram = () => {
             <line x1={CX + BX + 13} y1={184 + BY} x2={'715'} y2={208} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
             <circle cx={'715'} cy={208} r={'2'} fill={'#7b5bf5'} />
             <text x={'720'} y={204} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_SELECT')}</text>
-            <text x={'720'} y={219} textAnchor={'start'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_PLAY_PAUSE_PLAYER')}</text>
 
             {/* Right stick */}
             <line x1={CX + STX + 24} y1={234 + BY} x2={'715'} y2={268} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />

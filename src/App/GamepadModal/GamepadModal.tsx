@@ -104,7 +104,7 @@ const GamepadModal = ({ onClose }: Props) => {
                         <div className={styles['section']}>
                             <div className={styles['section-title']}>{t('GAMEPAD_SECTION_PLAYER')}</div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{CROSS}</kbd>
+                                <kbd className={styles['kbd']}>{SQUARE}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PLAY_PAUSE')}</span>
                             </div>
