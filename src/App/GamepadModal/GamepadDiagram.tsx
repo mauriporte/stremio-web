@@ -9,6 +9,7 @@ type ActiveButton = string | null;
 
 const CX = 400;
 const BTN = { L1: 'L1', L2: 'L2', R1: 'R1', R2: 'R2' };
+const ARROW = { UP: '↑', DOWN: '↓', LEFT: '←', RIGHT: '→' };
 
 const GamepadDiagram = () => {
     const { t } = useTranslation();
@@ -30,6 +31,7 @@ const GamepadDiagram = () => {
         gamepad?.on('buttonLT', 'gamepad-diagram', flash('l1'));
         gamepad?.on('buttonRT', 'gamepad-diagram', flash('r1'));
         gamepad?.on('analog', 'gamepad-diagram', (dir: string) => flash('stick-' + dir)());
+        gamepad?.on('analogRight', 'gamepad-diagram', (dir: string) => flash('rstick-' + dir)());
 
         return () => {
             clearTimeout(timeout);
@@ -40,6 +42,7 @@ const GamepadDiagram = () => {
             gamepad?.off('buttonLT', 'gamepad-diagram');
             gamepad?.off('buttonRT', 'gamepad-diagram');
             gamepad?.off('analog', 'gamepad-diagram');
+            gamepad?.off('analogRight', 'gamepad-diagram');
         };
     }, [gamepad]);
 
@@ -168,8 +171,14 @@ const GamepadDiagram = () => {
             </g>
 
             {/* ===== RIGHT STICK (CX+STX) ===== */}
-            <circle cx={CX + STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={'#3d3660'} strokeWidth={'1.5'} />
-            <circle cx={CX + STX} cy={240 + BY} r={'17'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.35'} />
+            <g filter={active?.startsWith('rstick-') ? 'url(#glow)' : undefined}>
+                <circle cx={CX + STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('rstick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
+                <circle cx={CX + STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
+                <text x={CX + STX} y={232 + BY} textAnchor={'middle'} fill={active === 'rstick-up' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-up' ? '700' : '400'}>{ARROW.UP}</text>
+                <text x={CX + STX} y={253 + BY} textAnchor={'middle'} fill={active === 'rstick-down' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-down' ? '700' : '400'}>{ARROW.DOWN}</text>
+                <text x={CX + STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-left' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-left' ? '700' : '400'}>{ARROW.LEFT}</text>
+                <text x={CX + STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'rstick-right' ? '#fff' : '#5848a0'} fontSize={'9'} fontWeight={active === 'rstick-right' ? '700' : '400'}>{ARROW.RIGHT}</text>
+            </g>
 
             {/* ============================= */}
             {/* ===== LABELS — LEFT ===== */}
@@ -184,7 +193,6 @@ const GamepadDiagram = () => {
             <line x1={CX - STX - 24} y1={232 + BY} x2={'85'} y2={168} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
             <circle cx={'85'} cy={168} r={'2'} fill={'#7b5bf5'} />
             <text x={'80'} y={164} textAnchor={'end'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_NAVIGATE')}</text>
-            <text x={'80'} y={179} textAnchor={'end'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_STICK_PLAYER')}</text>
 
             {/* □ Square */}
             <line x1={CX + BX - 44} y1={148 + BY} x2={'85'} y2={248} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.35'} />
@@ -215,6 +223,11 @@ const GamepadDiagram = () => {
             <circle cx={'715'} cy={208} r={'2'} fill={'#7b5bf5'} />
             <text x={'720'} y={204} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_ACTION_SELECT')}</text>
             <text x={'720'} y={219} textAnchor={'start'} fill={'#8b7faa'} fontSize={'10'}>{t('GAMEPAD_LABEL_PLAY_PAUSE_PLAYER')}</text>
+
+            {/* Right stick */}
+            <line x1={CX + STX + 24} y1={234 + BY} x2={'715'} y2={268} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
+            <circle cx={'715'} cy={268} r={'2'} fill={'#5848a0'} />
+            <text x={'720'} y={264} textAnchor={'start'} fill={'#c4b5fd'} fontSize={'12'} fontWeight={'500'}>{t('GAMEPAD_LABEL_SEEK_VOL')}</text>
 
             {/* Compat note */}
             <text x={CX} y={'475'} textAnchor={'middle'} fill={'#5848a0'} fontSize={'11'}>{t('GAMEPAD_LABEL_COMPAT')}</text>

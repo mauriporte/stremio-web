@@ -18,6 +18,7 @@ const GamepadProvider: React.FC<{
     const lastButtonState = useRef<number[]>([]);
     const lastButtonPressedTime = useRef<number>(0);
     const axisTimer = useRef<number>(0);
+    const axisTimerRight = useRef<number>(0);
     const eventHandlers = useRef<GamepadEventHandlers>(new Map());
 
     const on = useCallback((event: string, id: string, callback: (data?: any) => void) => {
@@ -170,6 +171,37 @@ const GamepadProvider: React.FC<{
                     }
 
                     if (axisHandled) axisTimer.current = currentTime;
+
+                    let rightAxisHandled = false;
+
+                    if (controller.axes.length > 2) {
+                        if (controller.axes[2] < -deadZone) {
+                            if (currentTime - axisTimerRight.current > maxSpeed + (2000 - Math.abs(controller.axes[2]) * 2000)) {
+                                emit('analogRight', 'left');
+                                rightAxisHandled = true;
+                            }
+                        }
+                        if (controller.axes[2] > deadZone) {
+                            if (currentTime - axisTimerRight.current > maxSpeed + (2000 - Math.abs(controller.axes[2]) * 2000)) {
+                                emit('analogRight', 'right');
+                                rightAxisHandled = true;
+                            }
+                        }
+                        if (controller.axes[3] < -deadZone) {
+                            if (currentTime - axisTimerRight.current > maxSpeed + (2000 - Math.abs(controller.axes[3]) * 2000)) {
+                                emit('analogRight', 'up');
+                                rightAxisHandled = true;
+                            }
+                        }
+                        if (controller.axes[3] > deadZone) {
+                            if (currentTime - axisTimerRight.current > maxSpeed + (2000 - Math.abs(controller.axes[3]) * 2000)) {
+                                emit('analogRight', 'down');
+                                rightAxisHandled = true;
+                            }
+                        }
+                    }
+
+                    if (rightAxisHandled) axisTimerRight.current = currentTime;
                 });
             }
             animationFrameId = requestAnimationFrame(updateStatus);

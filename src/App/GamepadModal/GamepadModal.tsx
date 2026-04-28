@@ -14,6 +14,7 @@ const CIRCLE = '○';
 const TRIANGLE = '△';
 const SQUARE = '□';
 const L_STICK = 'L stick';
+const R_STICK = 'R stick';
 const L1 = 'L1';
 const R1 = 'R1';
 const LEFT = '←';
@@ -108,22 +109,22 @@ const GamepadModal = ({ onClose }: Props) => {
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PLAY_PAUSE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
                                 <span className={styles['dir']}>{LEFT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_BACK')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
                                 <span className={styles['dir']}>{RIGHT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_FWD')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
                                 <span className={styles['dir']}>{UP}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_UP')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
                                 <span className={styles['dir']}>{DOWN}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_DOWN')}</span>
                             </div>

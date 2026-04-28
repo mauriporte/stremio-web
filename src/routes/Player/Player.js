@@ -8,6 +8,7 @@ const langs = require('langs');
 const { useTranslation } = require('react-i18next');
 const { useRouteFocused } = require('stremio-router');
 const { useServices, useGamepad } = require('stremio/services');
+const { useContentGamepadNavigation } = require('stremio/services/GamepadNavigation');
 const { onFileDrop, useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, CONSTANTS, useShell, usePlatform, onShortcut } = require('stremio/common');
 const { HorizontalNavBar, Transition, ContextMenu } = require('stremio/components');
 const BufferingLoader = require('./BufferingLoader');
@@ -60,6 +61,7 @@ const Player = ({ urlParams, queryParams }) => {
     });
     const playbackDevices = React.useMemo(() => streamingServer.playbackDevices !== null && streamingServer.playbackDevices.type === 'Ready' ? streamingServer.playbackDevices.content : [], [streamingServer]);
 
+    const playerRef = React.useRef(null);
     const bufferingRef = React.useRef();
     const errorRef = React.useRef();
 
@@ -444,13 +446,15 @@ const Player = ({ urlParams, queryParams }) => {
         }
     }, [onSeekPrev, onSeekNext, onVolumeUp, onVolumeDown]);
 
+    useContentGamepadNavigation(playerRef, GAMEPAD_HANDLER_ID);
+
     React.useEffect(() => {
         gamepad?.on('buttonA', GAMEPAD_HANDLER_ID, onPlayPause);
-        gamepad?.on('analog', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
+        gamepad?.on('analogRight', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
 
         return () => {
             gamepad?.off('buttonA', GAMEPAD_HANDLER_ID);
-            gamepad?.off('analog', GAMEPAD_HANDLER_ID);
+            gamepad?.off('analogRight', GAMEPAD_HANDLER_ID);
         };
     }, [onPlayPause, onGamepadSeekAndVol]);
 
@@ -969,7 +973,7 @@ const Player = ({ urlParams, queryParams }) => {
     }, []);
 
     return (
-        <div className={classnames(styles['player-container'], { [styles['overlayHidden']]: overlayHidden })}
+        <div ref={playerRef} className={classnames(styles['player-container'], { [styles['overlayHidden']]: overlayHidden })}
             onMouseDown={onContainerMouseDown}
             onMouseMove={onContainerMouseMove}
             onMouseOver={onContainerMouseMove}
