@@ -8,6 +8,7 @@ import styles from './styles.less';
 type ActiveButton = string | null;
 
 const CX = 400;
+const BTN = { L1: 'L1', L2: 'L2', R1: 'R1', R2: 'R2' };
 
 const GamepadDiagram = () => {
     const { t } = useTranslation();
@@ -79,12 +80,12 @@ const GamepadDiagram = () => {
                 d={`M${CX - SX - 38},68 Q${CX - SX - 40},48 ${CX - SX - 28},42 L${CX - SX + 28},42 Q${CX - SX + 40},48 ${CX - SX + 38},68 Z`}
                 fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
             />
-            <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>L2</text>
+            <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.L2}</text>
             <path
                 d={`M${CX + SX - 38},68 Q${CX + SX - 40},48 ${CX + SX - 28},42 L${CX + SX + 28},42 Q${CX + SX + 40},48 ${CX + SX + 38},68 Z`}
                 fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
             />
-            <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>R2</text>
+            <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.R2}</text>
 
             {/* ===== CONTROLLER BODY ===== */}
             <path
@@ -120,14 +121,14 @@ const GamepadDiagram = () => {
                     d={`M${CX - SX - 40},74 Q${CX - SX - 38},66 ${CX - SX - 30},64 L${CX - SX + 30},64 Q${CX - SX + 38},66 ${CX - SX + 40},74 L${CX - SX + 36},82 Q${CX - SX + 34},85 ${CX - SX + 28},85 L${CX - SX - 28},85 Q${CX - SX - 34},85 ${CX - SX - 36},82 Z`}
                     fill={'url(#bumperGrad)'} stroke={glow('l1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('l1') || 0.9}
                 />
-                <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>L1</text>
+                <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.L1}</text>
             </g>
             <g filter={active === 'r1' ? 'url(#glow)' : undefined}>
                 <path
                     d={`M${CX + SX - 40},74 Q${CX + SX - 38},66 ${CX + SX - 30},64 L${CX + SX + 30},64 Q${CX + SX + 38},66 ${CX + SX + 40},74 L${CX + SX + 36},82 Q${CX + SX + 34},85 ${CX + SX + 28},85 L${CX + SX - 28},85 Q${CX + SX - 34},85 ${CX + SX - 36},82 Z`}
                     fill={'url(#bumperGrad)'} stroke={glow('r1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('r1') || 0.9}
                 />
-                <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>R1</text>
+                <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.R1}</text>
             </g>
 
             {/* ===== FACE BUTTONS (right, centered at CX+BX) ===== */}

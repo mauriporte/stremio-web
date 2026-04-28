@@ -103,8 +103,8 @@ const useContentGamepadNavigation = (
                 elements[0].focus();
                 return;
             }
-            const isActiveSelectElement = [activeElement.classList].some((className) => /^select-input/.test(className.toString()));
-            if (!isActiveSelectElement) {
+            const isSelect = Array.from(activeElement.classList).some((cls) => cls.startsWith('select-input'));
+            if (!isSelect) {
                 activeElement?.click();
             }
         };

@@ -52,37 +52,35 @@ const GamepadProvider: React.FC<{
         }
     };
 
-    const onGamepadConnected = () => {
+    const onGamepadConnected = useCallback(() => {
         // @ts-expect-error show() expects no arguments
         toast.show({
             type: 'info',
             title: t('GAMEPAD_CONNECTED'),
             timeout: 4000,
         });
-    };
+    }, [toast, t]);
 
-    const onGamepadDisconnected = () => {
+    const onGamepadDisconnected = useCallback(() => {
         // @ts-expect-error show() expects no arguments
         toast.show({
             type: 'info',
             title: t('GAMEPAD_DISCONNECTED'),
             timeout: 4000,
         });
-    };
+    }, [toast, t]);
 
     useEffect(() => {
-        if (enabled) {
-            window.addEventListener('gamepadconnected', onGamepadConnected);
-            window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
-        }
+        if (!enabled) return;
+
+        window.addEventListener('gamepadconnected', onGamepadConnected);
+        window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
 
         return () => {
-            if (enabled) {
-                window.removeEventListener('gamepadconnected', onGamepadConnected);
-                window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
-            }
+            window.removeEventListener('gamepadconnected', onGamepadConnected);
+            window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
         };
-    }, [enabled]);
+    }, [enabled, onGamepadConnected, onGamepadDisconnected]);
 
     useEffect(() => {
         if (onGuide) {

@@ -9,6 +9,18 @@ import { useGamepad } from 'stremio/services';
 import GamepadDiagram from './GamepadDiagram';
 import styles from './styles.less';
 
+const CROSS = '✕';
+const CIRCLE = '○';
+const TRIANGLE = '△';
+const SQUARE = '□';
+const L_STICK = 'L stick';
+const L1 = 'L1';
+const R1 = 'R1';
+const LEFT = '←';
+const RIGHT = '→';
+const UP = '↑';
+const DOWN = '↓';
+
 type Props = {
     onClose: () => void,
 };
@@ -52,37 +64,37 @@ const GamepadModal = ({ onClose }: Props) => {
                         <div className={styles['section']}>
                             <div className={styles['section-title']}>{t('GAMEPAD_SECTION_NAVIGATION')}</div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L stick</kbd>
+                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_NAVIGATE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>✕</kbd>
+                                <kbd className={styles['kbd']}>{CROSS}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SELECT')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>○</kbd>
+                                <kbd className={styles['kbd']}>{CIRCLE}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_BACK')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>△</kbd>
+                                <kbd className={styles['kbd']}>{TRIANGLE}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_FULLSCREEN')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>□</kbd>
+                                <kbd className={styles['kbd']}>{SQUARE}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_GUIDE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L1</kbd>
+                                <kbd className={styles['kbd']}>{L1}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PREV_TAB')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>R1</kbd>
+                                <kbd className={styles['kbd']}>{R1}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_NEXT_TAB')}</span>
                             </div>
@@ -91,28 +103,28 @@ const GamepadModal = ({ onClose }: Props) => {
                         <div className={styles['section']}>
                             <div className={styles['section-title']}>{t('GAMEPAD_SECTION_PLAYER')}</div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>✕</kbd>
+                                <kbd className={styles['kbd']}>{CROSS}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PLAY_PAUSE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L stick</kbd>
-                                <span className={styles['dir']}>{'←'}</span>
+                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <span className={styles['dir']}>{LEFT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_BACK')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L stick</kbd>
-                                <span className={styles['dir']}>{'→'}</span>
+                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <span className={styles['dir']}>{RIGHT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_FWD')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L stick</kbd>
-                                <span className={styles['dir']}>{'↑'}</span>
+                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <span className={styles['dir']}>{UP}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_UP')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>L stick</kbd>
-                                <span className={styles['dir']}>{'↓'}</span>
+                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <span className={styles['dir']}>{DOWN}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_DOWN')}</span>
                             </div>
                         </div>
