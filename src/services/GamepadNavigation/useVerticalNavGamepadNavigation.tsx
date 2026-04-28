@@ -28,8 +28,8 @@ const useVerticalGamepadNavigation = (sectionRef: React.RefObject<HTMLDivElement
             elements[nextIndex]?.click();
         };
 
-        const handleKeyDown = (event) => {
-            if (!event.nativeEvent?.spatialNavigationPrevented) {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!(event as any).spatialNavigationPrevented) {
                 switch (event.key) {
                     case 'Tab':
                         moveFocus('next');

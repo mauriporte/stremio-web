@@ -445,12 +445,12 @@ const Player = ({ urlParams, queryParams }) => {
     }, [onSeekPrev, onSeekNext, onVolumeUp, onVolumeDown]);
 
     React.useEffect(() => {
-        gamepad.on('buttonA', GAMEPAD_HANDLER_ID, onPlayPause);
-        gamepad.on('analog', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
+        gamepad?.on('buttonA', GAMEPAD_HANDLER_ID, onPlayPause);
+        gamepad?.on('analog', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
 
         return () => {
-            gamepad.off('buttonA', GAMEPAD_HANDLER_ID);
-            gamepad.off('analog', GAMEPAD_HANDLER_ID);
+            gamepad?.off('buttonA', GAMEPAD_HANDLER_ID);
+            gamepad?.off('analog', GAMEPAD_HANDLER_ID);
         };
     }, [onPlayPause, onGamepadSeekAndVol]);
 
