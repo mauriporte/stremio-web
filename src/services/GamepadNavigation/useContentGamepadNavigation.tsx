@@ -3,11 +3,15 @@
 import { useEffect, useRef } from 'react';
 import { useGamepad } from '../GamepadContext';
 
-const FOCUSABLE = '[tabindex="0"]';
+const FOCUSABLE = '[tabindex]:not([data-focus-guard])';
 
 const getActiveScope = (fallback: HTMLDivElement | null): HTMLElement | null => {
-    const modal = document.querySelector<HTMLElement>('.modals-container');
-    if (modal && modal.children.length > 0) return modal;
+    if (document.querySelector('[data-gamepad-modal]')) return null;
+
+    const modals = document.querySelectorAll<HTMLElement>('.modals-container');
+    for (const modal of modals) {
+        if (modal.children.length > 0) return modal;
+    }
 
     const dropdown = fallback?.querySelector<HTMLElement>('[class*="dropdown"][class*="open"]');
     if (dropdown) return dropdown;

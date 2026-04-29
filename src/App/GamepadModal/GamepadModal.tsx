@@ -6,21 +6,43 @@ import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
 import { Button } from 'stremio/components';
 import { useGamepad } from 'stremio/services';
+import type { ControllerType } from 'stremio/services/GamepadContext';
 import GamepadDiagram from './GamepadDiagram';
 import styles from './styles.less';
 
-const CROSS = '✕';
-const CIRCLE = '○';
-const TRIANGLE = '△';
-const SQUARE = '□';
-const L_STICK = 'L stick';
-const R_STICK = 'R stick';
-const L1 = 'L1';
-const R1 = 'R1';
 const LEFT = '←';
 const RIGHT = '→';
 const UP = '↑';
 const DOWN = '↓';
+
+type FaceLabels = {
+    bottom: string;
+    right: string;
+    left: string;
+    top: string;
+    lb: string;
+    rb: string;
+    lStick: string;
+    rStick: string;
+};
+
+const LABELS: Record<ControllerType, FaceLabels> = {
+    playstation: {
+        bottom: '✕', right: '○', left: '□', top: '△',
+        lb: 'L1', rb: 'R1',
+        lStick: 'L stick', rStick: 'R stick',
+    },
+    xbox: {
+        bottom: 'A', right: 'B', left: 'X', top: 'Y',
+        lb: 'LB', rb: 'RB',
+        lStick: 'L stick', rStick: 'R stick',
+    },
+    generic: {
+        bottom: '✕', right: '○', left: '□', top: '△',
+        lb: 'L1', rb: 'R1',
+        lStick: 'L stick', rStick: 'R stick',
+    },
+};
 
 type Props = {
     onClose: () => void,
@@ -29,6 +51,8 @@ type Props = {
 const GamepadModal = ({ onClose }: Props) => {
     const { t } = useTranslation();
     const gamepad = useGamepad();
+
+    const labels = LABELS[gamepad?.controllerType ?? 'generic'];
 
     useEffect(() => {
         const onKeyDown = ({ key }: KeyboardEvent) => {
@@ -44,7 +68,7 @@ const GamepadModal = ({ onClose }: Props) => {
     }, [gamepad]);
 
     return createPortal((
-        <div className={styles['gamepad-modal']}>
+        <div className={styles['gamepad-modal']} data-gamepad-modal>
             <div className={styles['backdrop']} onClick={onClose} />
 
             <div className={styles['container']}>
@@ -65,37 +89,37 @@ const GamepadModal = ({ onClose }: Props) => {
                         <div className={styles['section']}>
                             <div className={styles['section-title']}>{t('GAMEPAD_SECTION_NAVIGATION')}</div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{labels.lStick}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_NAVIGATE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{CROSS}</kbd>
+                                <kbd className={styles['kbd']}>{labels.bottom}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SELECT')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{CIRCLE}</kbd>
+                                <kbd className={styles['kbd']}>{labels.right}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_BACK')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{TRIANGLE}</kbd>
+                                <kbd className={styles['kbd']}>{labels.top}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_FULLSCREEN')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{SQUARE}</kbd>
+                                <kbd className={styles['kbd']}>{labels.left}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_GUIDE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{L1}</kbd>
+                                <kbd className={styles['kbd']}>{labels.lb}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PREV_TAB')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{R1}</kbd>
+                                <kbd className={styles['kbd']}>{labels.rb}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_NEXT_TAB')}</span>
                             </div>
@@ -104,27 +128,27 @@ const GamepadModal = ({ onClose }: Props) => {
                         <div className={styles['section']}>
                             <div className={styles['section-title']}>{t('GAMEPAD_SECTION_PLAYER')}</div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{SQUARE}</kbd>
+                                <kbd className={styles['kbd']}>{labels.left}</kbd>
                                 <span className={styles['dir']} />
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_PLAY_PAUSE')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{labels.rStick}</kbd>
                                 <span className={styles['dir']}>{LEFT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_BACK')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{labels.rStick}</kbd>
                                 <span className={styles['dir']}>{RIGHT}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_SEEK_FWD')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{labels.rStick}</kbd>
                                 <span className={styles['dir']}>{UP}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_UP')}</span>
                             </div>
                             <div className={styles['mapping']}>
-                                <kbd className={styles['kbd']}>{R_STICK}</kbd>
+                                <kbd className={styles['kbd']}>{labels.rStick}</kbd>
                                 <span className={styles['dir']}>{DOWN}</span>
                                 <span className={styles['action']}>{t('GAMEPAD_ACTION_VOL_DOWN')}</span>
                             </div>
