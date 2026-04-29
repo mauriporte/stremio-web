@@ -91,6 +91,19 @@ const GamepadDiagram = () => {
     const STX = 75;
     const BY = 30;
 
+    // Xbox controllers are asymmetric — left stick sits upper-left (where the
+    // d-pad is on PlayStation) and the d-pad drops to the lower-left.
+    const isXbox = (gamepad?.controllerType ?? 'generic') === 'xbox';
+    const lstickPos = isXbox
+        ? { cx: CX - BX, cy: 148 + BY }
+        : { cx: CX - STX, cy: 240 + BY };
+    const dpadPos = isXbox
+        ? { cx: CX - STX, cy: 240 + BY }
+        : { cx: CX - BX, cy: 149 + BY };
+    const navLine = isXbox
+        ? { x1: CX - BX - 24, y1: 148 + BY }
+        : { x1: CX - STX - 24, y1: 232 + BY };
+
     return (
         <svg className={styles['diagram']} viewBox={'0 0 800 510'} xmlns={'http://www.w3.org/2000/svg'}>
             <defs>
@@ -190,16 +203,16 @@ const GamepadDiagram = () => {
                     <circle cx={CX + BX - 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('left') || '#5848a0'} strokeWidth={'1.5'} />
                     <text x={CX + BX - 30} y={153 + BY} textAnchor={'middle'} fill={active === 'left' ? '#fff' : '#a89ecc'} fontSize={layout.left.fontSize} fontWeight={layout.left.weight}>{layout.left.glyph}</text>
                 </g>
-                <rect x={CX - BX - 12} y={120 + BY} rx={'3'} ry={'3'} width={'24'} height={'58'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
-                <rect x={CX - BX - 29} y={137 + BY} rx={'3'} ry={'3'} width={'58'} height={'24'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
+                <rect x={dpadPos.cx - 12} y={dpadPos.cy - 29} rx={'3'} ry={'3'} width={'24'} height={'58'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
+                <rect x={dpadPos.cx - 29} y={dpadPos.cy - 12} rx={'3'} ry={'3'} width={'58'} height={'24'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
 
                 <g filter={active?.startsWith('stick-') ? 'url(#glow)' : undefined}>
-                    <circle cx={CX - STX} cy={240 + BY} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('stick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
-                    <circle cx={CX - STX} cy={240 + BY} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
-                    <text x={CX - STX} y={232 + BY} textAnchor={'middle'} fill={active === 'stick-up' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-up' ? '700' : '400'}>↑</text>
-                    <text x={CX - STX} y={253 + BY} textAnchor={'middle'} fill={active === 'stick-down' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-down' ? '700' : '400'}>↓</text>
-                    <text x={CX - STX - 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-left' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-left' ? '700' : '400'}>←</text>
-                    <text x={CX - STX + 11} y={244 + BY} textAnchor={'middle'} fill={active === 'stick-right' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-right' ? '700' : '400'}>→</text>
+                    <circle cx={lstickPos.cx} cy={lstickPos.cy} r={'26'} fill={'#1a1530'} stroke={active?.startsWith('stick-') ? '#7b5bf5' : '#3d3660'} strokeWidth={'2'} />
+                    <circle cx={lstickPos.cx} cy={lstickPos.cy} r={'17'} fill={'#252040'} stroke={'#4a4075'} strokeWidth={'1.5'} />
+                    <text x={lstickPos.cx} y={lstickPos.cy - 8} textAnchor={'middle'} fill={active === 'stick-up' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-up' ? '700' : '400'}>↑</text>
+                    <text x={lstickPos.cx} y={lstickPos.cy + 13} textAnchor={'middle'} fill={active === 'stick-down' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-down' ? '700' : '400'}>↓</text>
+                    <text x={lstickPos.cx - 11} y={lstickPos.cy + 4} textAnchor={'middle'} fill={active === 'stick-left' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-left' ? '700' : '400'}>←</text>
+                    <text x={lstickPos.cx + 11} y={lstickPos.cy + 4} textAnchor={'middle'} fill={active === 'stick-right' ? '#fff' : '#7b5bf5'} fontSize={'9'} fontWeight={active === 'stick-right' ? '700' : '400'}>→</text>
                 </g>
 
                 <g filter={active?.startsWith('rstick-') ? 'url(#glow)' : undefined}>
@@ -216,7 +229,7 @@ const GamepadDiagram = () => {
             <g className={styles['anim-lines']}>
                 <line x1={CX - SX - 40} y1={'74'} x2={'85'} y2={'48'} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.4'} />
                 <circle cx={'85'} cy={'48'} r={'2'} fill={'#5848a0'} />
-                <line x1={CX - STX - 24} y1={232 + BY} x2={'85'} y2={168} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
+                <line x1={navLine.x1} y1={navLine.y1} x2={'85'} y2={168} stroke={'#7b5bf5'} strokeWidth={'1'} opacity={'0.4'} />
                 <circle cx={'85'} cy={168} r={'2'} fill={'#7b5bf5'} />
                 <line x1={CX + BX - 44} y1={148 + BY} x2={'85'} y2={248} stroke={'#5848a0'} strokeWidth={'1'} opacity={'0.35'} />
                 <circle cx={'85'} cy={248} r={'2'} fill={'#5848a0'} />
