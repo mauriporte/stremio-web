@@ -3,6 +3,8 @@
 import GamepadProvider from './GamepadProvider';
 import useGamepad from './useGamepad';
 
+export type { ControllerType } from './GamepadContext';
+
 export {
     GamepadProvider,
     useGamepad

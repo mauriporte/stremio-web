@@ -3,18 +3,55 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGamepad } from 'stremio/services';
+import type { ControllerType } from 'stremio/services/GamepadContext';
 import styles from './styles.less';
 
 type ActiveButton = string | null;
 
 const CX = 400;
-const BTN = { L1: 'L1', L2: 'L2', R1: 'R1', R2: 'R2' };
 const ARROW = { UP: '↑', DOWN: '↓', LEFT: '←', RIGHT: '→' };
+
+type FaceLayout = {
+    top: { glyph: string; fontSize: number; weight: number };
+    right: { glyph: string; fontSize: number; weight: number };
+    bottom: { glyph: string; fontSize: number; weight: number };
+    left: { glyph: string; fontSize: number; weight: number };
+    lb: string;
+    rb: string;
+    lt: string;
+    rt: string;
+};
+
+const LAYOUTS: Record<ControllerType, FaceLayout> = {
+    playstation: {
+        top:    { glyph: '△', fontSize: 12, weight: 400 },
+        right:  { glyph: '○', fontSize: 12, weight: 400 },
+        bottom: { glyph: '✕', fontSize: 12, weight: 400 },
+        left:   { glyph: '□', fontSize: 12, weight: 400 },
+        lb: 'L1', rb: 'R1', lt: 'L2', rt: 'R2',
+    },
+    xbox: {
+        top:    { glyph: 'Y', fontSize: 11, weight: 700 },
+        right:  { glyph: 'B', fontSize: 11, weight: 700 },
+        bottom: { glyph: 'A', fontSize: 11, weight: 700 },
+        left:   { glyph: 'X', fontSize: 11, weight: 700 },
+        lb: 'LB', rb: 'RB', lt: 'LT', rt: 'RT',
+    },
+    generic: {
+        top:    { glyph: '△', fontSize: 12, weight: 400 },
+        right:  { glyph: '○', fontSize: 12, weight: 400 },
+        bottom: { glyph: '✕', fontSize: 12, weight: 400 },
+        left:   { glyph: '□', fontSize: 12, weight: 400 },
+        lb: 'L1', rb: 'R1', lt: 'L2', rt: 'R2',
+    },
+};
 
 const GamepadDiagram = () => {
     const { t } = useTranslation();
     const gamepad = useGamepad();
     const [active, setActive] = useState<ActiveButton>(null);
+
+    const layout = LAYOUTS[gamepad?.controllerType ?? 'generic'];
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
@@ -24,12 +61,12 @@ const GamepadDiagram = () => {
             timeout = setTimeout(() => setActive(null), 400);
         };
 
-        gamepad?.on('buttonA', 'gamepad-diagram', flash('cross'));
-        gamepad?.on('buttonB', 'gamepad-diagram', flash('circle'));
-        gamepad?.on('buttonX', 'gamepad-diagram', flash('square'));
-        gamepad?.on('buttonY', 'gamepad-diagram', flash('triangle'));
-        gamepad?.on('buttonLT', 'gamepad-diagram', flash('l1'));
-        gamepad?.on('buttonRT', 'gamepad-diagram', flash('r1'));
+        gamepad?.on('buttonA', 'gamepad-diagram', flash('bottom'));
+        gamepad?.on('buttonB', 'gamepad-diagram', flash('right'));
+        gamepad?.on('buttonX', 'gamepad-diagram', flash('left'));
+        gamepad?.on('buttonY', 'gamepad-diagram', flash('top'));
+        gamepad?.on('buttonLT', 'gamepad-diagram', flash('lb'));
+        gamepad?.on('buttonRT', 'gamepad-diagram', flash('rb'));
         gamepad?.on('analog', 'gamepad-diagram', (dir) => dir && flash('stick-' + dir)());
         gamepad?.on('analogRight', 'gamepad-diagram', (dir) => dir && flash('rstick-' + dir)());
 
@@ -83,12 +120,12 @@ const GamepadDiagram = () => {
                     d={`M${CX - SX - 38},68 Q${CX - SX - 40},48 ${CX - SX - 28},42 L${CX - SX + 28},42 Q${CX - SX + 40},48 ${CX - SX + 38},68 Z`}
                     fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
                 />
-                <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.L2}</text>
+                <text x={CX - SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{layout.lt}</text>
                 <path
                     d={`M${CX + SX - 38},68 Q${CX + SX - 40},48 ${CX + SX - 28},42 L${CX + SX + 28},42 Q${CX + SX + 40},48 ${CX + SX + 38},68 Z`}
                     fill={'url(#triggerGrad)'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.7'}
                 />
-                <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{BTN.R2}</text>
+                <text x={CX + SX} y={'58'} textAnchor={'middle'} fill={'#8b7faa'} fontSize={'8'} fontWeight={'500'}>{layout.rt}</text>
             </g>
             <path
                 className={styles['anim-body']}
@@ -119,39 +156,39 @@ const GamepadDiagram = () => {
 
             <g className={styles['anim-controls']}>
                 <rect x={CX - 58} y={96 + BY} rx={'8'} ry={'8'} width={'116'} height={'48'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1.5'} />
-                <g filter={active === 'l1' ? 'url(#glow)' : undefined}>
+                <g filter={active === 'lb' ? 'url(#glow)' : undefined}>
                     <path
                         d={`M${CX - SX - 40},74 Q${CX - SX - 38},66 ${CX - SX - 30},64 L${CX - SX + 30},64 Q${CX - SX + 38},66 ${CX - SX + 40},74 L${CX - SX + 36},82 Q${CX - SX + 34},85 ${CX - SX + 28},85 L${CX - SX - 28},85 Q${CX - SX - 34},85 ${CX - SX - 36},82 Z`}
-                        fill={'url(#bumperGrad)'} stroke={glow('l1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('l1') || 0.9}
+                        fill={'url(#bumperGrad)'} stroke={glow('lb') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('lb') || 0.9}
                     />
-                    <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.L1}</text>
+                    <text x={CX - SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{layout.lb}</text>
                 </g>
-                <g filter={active === 'r1' ? 'url(#glow)' : undefined}>
+                <g filter={active === 'rb' ? 'url(#glow)' : undefined}>
                     <path
                         d={`M${CX + SX - 40},74 Q${CX + SX - 38},66 ${CX + SX - 30},64 L${CX + SX + 30},64 Q${CX + SX + 38},66 ${CX + SX + 40},74 L${CX + SX + 36},82 Q${CX + SX + 34},85 ${CX + SX + 28},85 L${CX + SX - 28},85 Q${CX + SX - 34},85 ${CX + SX - 36},82 Z`}
-                        fill={'url(#bumperGrad)'} stroke={glow('r1') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('r1') || 0.9}
+                        fill={'url(#bumperGrad)'} stroke={glow('rb') || '#5848a0'} strokeWidth={'1.2'} opacity={glowOp('rb') || 0.9}
                     />
-                    <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{BTN.R1}</text>
+                    <text x={CX + SX} y={'78'} textAnchor={'middle'} fill={'#a89ecc'} fontSize={'9'} fontWeight={'600'}>{layout.rb}</text>
                 </g>
 
-                <g filter={active === 'triangle' ? 'url(#glow)' : undefined}>
-                    <circle cx={CX + BX} cy={118 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('triangle') || '#5848a0'} strokeWidth={'1.5'} />
-                    <text x={CX + BX} y={123 + BY} textAnchor={'middle'} fill={active === 'triangle' ? '#fff' : '#a89ecc'} fontSize={'12'}>△</text>
+                <g filter={active === 'top' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX} cy={118 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('top') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX} y={123 + BY} textAnchor={'middle'} fill={active === 'top' ? '#fff' : '#a89ecc'} fontSize={layout.top.fontSize} fontWeight={layout.top.weight}>{layout.top.glyph}</text>
                 </g>
 
-                <g filter={active === 'circle' ? 'url(#glow)' : undefined}>
-                    <circle cx={CX + BX + 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('circle') || '#5848a0'} strokeWidth={'1.5'} />
-                    <text x={CX + BX + 30} y={153 + BY} textAnchor={'middle'} fill={active === 'circle' ? '#fff' : '#a89ecc'} fontSize={'12'}>○</text>
+                <g filter={active === 'right' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX + 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('right') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX + 30} y={153 + BY} textAnchor={'middle'} fill={active === 'right' ? '#fff' : '#a89ecc'} fontSize={layout.right.fontSize} fontWeight={layout.right.weight}>{layout.right.glyph}</text>
                 </g>
 
-                <g filter={active === 'cross' ? 'url(#glow)' : undefined}>
-                    <circle cx={CX + BX} cy={178 + BY} r={'15'} fill={active === 'cross' ? '#9b7fff' : '#7b5bf5'} stroke={'#9b7fff'} strokeWidth={'1.5'} />
-                    <text x={CX + BX} y={183 + BY} textAnchor={'middle'} fill={'#fff'} fontSize={'12'}>✕</text>
+                <g filter={active === 'bottom' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX} cy={178 + BY} r={'15'} fill={active === 'bottom' ? '#9b7fff' : '#7b5bf5'} stroke={'#9b7fff'} strokeWidth={'1.5'} />
+                    <text x={CX + BX} y={183 + BY} textAnchor={'middle'} fill={'#fff'} fontSize={layout.bottom.fontSize} fontWeight={layout.bottom.weight}>{layout.bottom.glyph}</text>
                 </g>
 
-                <g filter={active === 'square' ? 'url(#glow)' : undefined}>
-                    <circle cx={CX + BX - 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('square') || '#5848a0'} strokeWidth={'1.5'} />
-                    <text x={CX + BX - 30} y={153 + BY} textAnchor={'middle'} fill={active === 'square' ? '#fff' : '#a89ecc'} fontSize={'12'}>□</text>
+                <g filter={active === 'left' ? 'url(#glow)' : undefined}>
+                    <circle cx={CX + BX - 30} cy={148 + BY} r={'15'} fill={'#1e1a35'} stroke={glow('left') || '#5848a0'} strokeWidth={'1.5'} />
+                    <text x={CX + BX - 30} y={153 + BY} textAnchor={'middle'} fill={active === 'left' ? '#fff' : '#a89ecc'} fontSize={layout.left.fontSize} fontWeight={layout.left.weight}>{layout.left.glyph}</text>
                 </g>
                 <rect x={CX - BX - 12} y={120 + BY} rx={'3'} ry={'3'} width={'24'} height={'58'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />
                 <rect x={CX - BX - 29} y={137 + BY} rx={'3'} ry={'3'} width={'58'} height={'24'} fill={'#1e1a35'} stroke={'#3d3660'} strokeWidth={'1'} opacity={'0.4'} />

@@ -1,9 +1,10 @@
 // Copyright (C) 2017-2026 Smart code 203358507
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import GamepadContext from './GamepadContext';
+import type { ControllerType } from './GamepadContext';
 
 type GamepadEventHandlers = Map<string, Map<string, (data?: string) => void>>;
 
@@ -11,6 +12,17 @@ type GamepadProviderProps = {
     enabled: boolean;
     onGuide?: () => void;
     children: React.ReactNode;
+};
+
+const detectControllerType = (gamepad: Gamepad): ControllerType => {
+    const id = gamepad.id.toLowerCase();
+    // Sony vendor id 054c — DualShock / DualSense / generic PlayStation
+    if (/sony|playstation|dualsense|dualshock|054c/.test(id)) return 'playstation';
+    // Microsoft vendor id 045e — Xbox / XInput
+    if (/xbox|microsoft|xinput|045e/.test(id)) return 'xbox';
+    // Browser "Standard Gamepad" mapping mirrors the Xbox layout
+    if (gamepad.mapping === 'standard') return 'xbox';
+    return 'generic';
 };
 
 const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) => {
@@ -22,6 +34,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     const axisTimer = useRef<number>(0);
     const axisTimerRight = useRef<number>(0);
     const eventHandlers = useRef<GamepadEventHandlers>(new Map());
+    const [controllerType, setControllerType] = useState<ControllerType>('generic');
 
     const on = useCallback((event: string, id: string, callback: (data?: string) => void) => {
         if (!eventHandlers.current.has(event)) {
@@ -55,7 +68,8 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
         }
     };
 
-    const onGamepadConnected = useCallback(() => {
+    const onGamepadConnected = useCallback((e: GamepadEvent) => {
+        setControllerType(detectControllerType(e.gamepad));
         // @ts-expect-error show() expects no arguments
         toast.show({
             type: 'info',
@@ -65,6 +79,10 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     }, [toast, t]);
 
     const onGamepadDisconnected = useCallback(() => {
+        const remaining = Array.from(navigator.getGamepads()).filter(
+            (gp) => gp !== null
+        ) as Gamepad[];
+        setControllerType(remaining.length > 0 ? detectControllerType(remaining[0]) : 'generic');
         // @ts-expect-error show() expects no arguments
         toast.show({
             type: 'info',
@@ -75,6 +93,15 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
 
     useEffect(() => {
         if (!enabled) return;
+
+        if (typeof navigator.getGamepads === 'function') {
+            const existing = Array.from(navigator.getGamepads()).filter(
+                (gp) => gp !== null
+            ) as Gamepad[];
+            if (existing.length > 0) {
+                setControllerType(detectControllerType(existing[0]));
+            }
+        }
 
         window.addEventListener('gamepadconnected', onGamepadConnected);
         window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
@@ -217,7 +244,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     }, [enabled]);
 
     return (
-        <GamepadContext.Provider value={{ on, off }}>
+        <GamepadContext.Provider value={{ on, off, controllerType }}>
             {children}
         </GamepadContext.Provider>
     );
