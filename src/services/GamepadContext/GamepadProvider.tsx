@@ -132,10 +132,10 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
 
     useEffect(() => {
         if (onGuide) {
-            on('buttonX', 'gamepad-guide', onGuide);
+            on('buttonX', 'guide', onGuide);
         }
         return () => {
-            off('buttonX', 'gamepad-guide');
+            off('buttonX', 'guide');
         };
     }, [onGuide]);
 
