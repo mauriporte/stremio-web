@@ -34,6 +34,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     const axisTimer = useRef<number>(0);
     const axisTimerRight = useRef<number>(0);
     const eventHandlers = useRef<GamepadEventHandlers>(new Map());
+    const lockPrefix = useRef<string | null>(null);
     const [controllerType, setControllerType] = useState<ControllerType>('generic');
 
     const on = useCallback((event: string, id: string, callback: (data?: string) => void) => {
@@ -55,11 +56,28 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
         }
     }, []);
 
+    const lock = useCallback((prefix: string) => {
+        lockPrefix.current = prefix;
+    }, []);
+
+    const unlock = useCallback(() => {
+        lockPrefix.current = null;
+    }, []);
+
     const emit = (event: string, data?: string) => {
         if (eventHandlers.current.has(event)) {
             const handlersMap = eventHandlers.current.get(event)!;
 
             if (!handlersMap || handlersMap.size === 0) return;
+
+            if (lockPrefix.current) {
+                const matching = Array.from(handlersMap.entries())
+                    .filter(([id]) => id.startsWith(lockPrefix.current!));
+                if (matching.length > 0) {
+                    matching[matching.length - 1][1](data);
+                }
+                return;
+            }
 
             const latestHandler = Array.from(handlersMap.values()).slice(-1)[0];
             if (latestHandler) {
@@ -244,7 +262,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     }, [enabled]);
 
     return (
-        <GamepadContext.Provider value={{ on, off, controllerType }}>
+        <GamepadContext.Provider value={{ on, off, lock, unlock, controllerType }}>
             {children}
         </GamepadContext.Provider>
     );

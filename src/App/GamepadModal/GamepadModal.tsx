@@ -55,6 +55,7 @@ const GamepadModal = ({ onClose }: Props) => {
     const labels = LABELS[gamepad?.controllerType ?? 'generic'];
 
     useEffect(() => {
+        gamepad?.lock('gamepad-');
         const onKeyDown = ({ key }: KeyboardEvent) => {
             key === 'Escape' && onClose();
         };
@@ -64,6 +65,7 @@ const GamepadModal = ({ onClose }: Props) => {
         return () => {
             document.removeEventListener('keydown', onKeyDown);
             gamepad?.off('buttonB', 'gamepad-modal');
+            gamepad?.unlock();
         };
     }, [gamepad]);
 
