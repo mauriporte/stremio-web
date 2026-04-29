@@ -45,11 +45,13 @@ const App = () => {
     const [gamepadModalOpen,, closeGamepadModal, toggleGamepadModal] = useBinaryState(false);
 
     const onShortcut = React.useCallback((name) => {
-        if (name === 'shortcuts') {
-            toggleShortcutModal();
-        }
-        if (name === 'gamepadGuide') {
-            toggleGamepadModal();
+        switch (name) {
+            case 'shortcuts':
+                toggleShortcutModal();
+                break;
+            case 'gamepadGuide':
+                toggleGamepadModal();
+                break;
         }
     }, [toggleShortcutModal, toggleGamepadModal]);
 
