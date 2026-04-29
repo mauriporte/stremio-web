@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import GamepadContext from './GamepadContext';
 
-type GamepadEventHandlers = Map<string, Map<string, (data?: any) => void>>;
+type GamepadEventHandlers = Map<string, Map<string, (data?: string) => void>>;
 
 type GamepadProviderProps = {
     enabled: boolean;
@@ -23,7 +23,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
     const axisTimerRight = useRef<number>(0);
     const eventHandlers = useRef<GamepadEventHandlers>(new Map());
 
-    const on = useCallback((event: string, id: string, callback: (data?: any) => void) => {
+    const on = useCallback((event: string, id: string, callback: (data?: string) => void) => {
         if (!eventHandlers.current.has(event)) {
             eventHandlers.current.set(event, new Map());
         }
@@ -42,7 +42,7 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
         }
     }, []);
 
-    const emit = (event: string, data?: any) => {
+    const emit = (event: string, data?: string) => {
         if (eventHandlers.current.has(event)) {
             const handlersMap = eventHandlers.current.get(event)!;
 
