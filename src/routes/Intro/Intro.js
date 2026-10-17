@@ -26,8 +26,23 @@ const Intro = () => {
     const core = useCore();
     const { t } = useTranslation();
     const routeFocused = useRouteFocused();
-    const [startFacebookLogin, stopFacebookLogin] = useFacebookLogin();
-    const [startAppleLogin, stopAppleLogin] = useAppleLogin();
+    const [startFacebookLogin, stopFacebookLogin, facebookLoginUrl] = useFacebookLogin();
+    const [startAppleLogin, stopAppleLogin, appleLoginUrl] = useAppleLogin();
+    const socialLoginUrl = facebookLoginUrl || appleLoginUrl;
+    const loginLinkRef = React.useRef(null);
+    const [linkCopied, setLinkCopied] = React.useState(false);
+    const copyLoginLink = React.useCallback(() => {
+        // clipboard API is often blocked inside iframes/WebViews; fall back to select + execCommand
+        const fallback = () => {
+            loginLinkRef.current?.select();
+            setLinkCopied(document.execCommand('copy'));
+        };
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(socialLoginUrl).then(() => setLinkCopied(true), fallback);
+        } else {
+            fallback();
+        }
+    }, [socialLoginUrl]);
     const emailRef = React.useRef(null);
     const passwordRef = React.useRef(null);
     const confirmPasswordRef = React.useRef(null);
@@ -419,6 +434,26 @@ const Intro = () => {
                         <div className={styles['loader-container']}>
                             <Icon className={styles['icon']} name={'person'} />
                             <div className={styles['label']}>{t('AUTHENTICATING')}</div>
+                            {
+                                socialLoginUrl ?
+                                    <div className={styles['login-link-container']}>
+                                        <div className={styles['login-link-hint']}>
+                                            ¿No se abre el navegador? Copia este enlace y ábrelo en Chrome (o en cualquier dispositivo). Esta pantalla seguirá esperando.
+                                        </div>
+                                        <input
+                                            ref={loginLinkRef}
+                                            className={styles['login-link']}
+                                            readOnly={true}
+                                            value={socialLoginUrl}
+                                            onFocus={(event) => event.target.select()}
+                                        />
+                                        <Button className={styles['button']} onClick={copyLoginLink}>
+                                            {linkCopied ? 'Enlace copiado' : 'Copiar enlace'}
+                                        </Button>
+                                    </div>
+                                    :
+                                    null
+                            }
                             <Button className={styles['button']} onClick={cancelSocialLogin}>
                                 {t('BUTTON_CANCEL')}
                             </Button>

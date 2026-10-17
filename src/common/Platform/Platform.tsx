@@ -27,7 +27,16 @@ const PlatformProvider = ({ children }: Props) => {
             );
             const finalUrl = !isWhitelisted ? `https://www.stremio.com/warning#${encodeURIComponent(url)}` : url;
 
-            window.open(finalUrl, '_blank');
+            const opened = window.open(finalUrl, '_blank');
+            // ha-theme: inside the HA Android app (WebView iframe) popups are dropped; navigating the top
+            // window to a non-HA URL makes the app hand it to the phone's browser, and the page keeps polling.
+            if (!opened) {
+                try {
+                    window.top!.location.href = finalUrl;
+                } catch (e) {
+                    console.error('Failed to open external url:', e);
+                }
+            }
         } catch (e) {
             console.error('Failed to parse external url:', e);
         }

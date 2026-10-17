@@ -29,7 +29,7 @@ const getCredentials = async (state: string): Promise<AppleLoginResponse> => {
     }
 };
 
-const useAppleLogin = (): [() => Promise<AppleLoginResponse>, () => void] => {
+const useAppleLogin = (): [() => Promise<AppleLoginResponse>, () => void, string | null] => {
     return useSocialLogin({
         loginUrl: `${STREMIO_URL}/login-apple`,
         getCredentials,
