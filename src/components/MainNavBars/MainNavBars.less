@@ -23,16 +23,16 @@
         position: absolute;
         top: var(--horizontal-nav-bar-size);
         bottom: 0;
-        left: 0;
+        right: 0; // ha-theme: side nav on the right
         z-index: 1;
     }
 
     .nav-content-container {
         position: absolute;
         top: calc(var(--horizontal-nav-bar-size) + var(--safe-area-inset-top));
-        right: 0;
+        right: var(--vertical-nav-bar-size);
         bottom: 0;
-        left: var(--vertical-nav-bar-size);
+        left: 0;
         z-index: 0;
     }
 }
@@ -40,12 +40,13 @@
 @media only screen and (max-width: @minimum) {
     .main-nav-bars-container {
         .nav-content-container {
-            left: 0;
+            right: 0;
             bottom: var(--vertical-nav-bar-size);
         }
 
         .vertical-nav-bar {
             top: initial;
+            left: 0;
         }
     }
 }
