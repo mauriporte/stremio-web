@@ -60,6 +60,9 @@
     <link rel="manifest" href="manifest.json" />
     <title>Stremio - Freedom to Stream</title>
     <%= htmlWebpackPlugin.tags.headTags %>
+    <!-- ha-theme: Deluminate (Brave/Vivaldi) treats pages with a prefers-color-scheme rule as already dark and skips inverting them -->
+    <meta name="color-scheme" content="dark">
+    <style>@media (prefers-color-scheme: dark) { :root { color-scheme: dark; } }</style>
 </head>
 
 <body>
